@@ -26,7 +26,7 @@ public class Category {
     private String name;
 
     @OneToMany(mappedBy = "category")
-    private Set<Item> items;
+    private Set<Item> items = new HashSet<>();
 
     /**
      * Empty constructor required for JPA.
@@ -41,6 +41,5 @@ public class Category {
      */
     public Category(String name) {
         this.name = name;
-        this.items = new HashSet<>();
     }
 }
