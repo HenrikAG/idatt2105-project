@@ -42,7 +42,7 @@ public class Item {
     /**
      * Constructor for Item class.
      * 
-     * @param name the name of the item to be sold
+     * @param name the name of the item
      * @param category the category of the item
      * @param description a description of the item
      * @param imageName the name of an image of the item
@@ -52,5 +52,41 @@ public class Item {
         this.category = category;
         this.description = description;
         this.imageName = imageName;
+    }
+
+    /**
+     * Returns the name of the item.
+     * 
+     * @return the name of the item
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the category of the item.
+     * 
+     * @return the category of the item
+     */
+    public Category getCategory() {
+        return category;
+    }
+
+    /**
+     * Returns the description of the item.
+     * 
+     * @return the description of the item.
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Returns the name of the imagefile of the item.
+     * 
+     * @return the name of an image of the item.
+     */
+    public String getImageName() {
+        return imageName;
     }
 }

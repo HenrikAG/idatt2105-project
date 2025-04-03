@@ -42,4 +42,13 @@ public class Category {
     public Category(String name) {
         this.name = name;
     }
+
+    /**
+     * Returns the name of the cateogory.
+     * 
+     * @return the name of the category
+     */
+    public String getName() {
+        return name;
+    }
 }
