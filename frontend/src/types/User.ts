@@ -1,4 +1,4 @@
-import { Product } from "./Product";
+import type { Product } from "./Product";
 
 export interface User {
     id: number;
@@ -9,4 +9,6 @@ export interface User {
     createdAt: string;
     updatedAt: string;
     products?: Product[];
+    imageUrl?: string;
+    validMarker: boolean;
 }
