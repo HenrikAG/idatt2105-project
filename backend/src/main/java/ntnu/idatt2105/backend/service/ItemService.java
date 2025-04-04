@@ -1,6 +1,5 @@
 package ntnu.idatt2105.backend.service;
 
-import java.lang.foreign.Linker.Option;
 import java.util.List;
 import java.util.Optional;
 
