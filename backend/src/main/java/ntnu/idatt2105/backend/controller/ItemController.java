@@ -7,9 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.model.Item;
 import ntnu.idatt2105.backend.service.ItemService;
 
@@ -35,7 +38,23 @@ public class ItemController {
             List<Item> categoryItems = itemService.getItemsByCategoryName(categoryName);
             return new ResponseEntity<>(categoryItems, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Registers a new item in the database if the item is valid.
+     * 
+     * @param itemRequest the item to be registered as an ItemDTO object
+     * @return A ResponseEntity with the registered item an ok status code, or the exception message and the HttpStatus code.
+     */
+    @PostMapping("/post")
+    public ResponseEntity<?> postItem(@RequestBody ItemDTO itemRequest) {
+        try {
+            Item newItem = itemService.registerItem(itemRequest);
+            return new ResponseEntity<>(newItem, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }
