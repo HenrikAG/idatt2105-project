@@ -61,4 +61,33 @@ public class ItemService {
         Item newItem = new Item(itemRequest.getName(), itemCategory.get(), itemRequest.getDescription(), itemRequest.getImageName());
         return itemRepository.save(newItem);
     }
+
+    public Item updateItem(Long id, ItemDTO updateRequest) {
+        Item item = itemRepository.findById(id).orElseThrow(getImageUrl);
+
+        if (updateRequest.getName() != null) {
+            item.setName(updateRequest.getName());
+        }
+
+        if (updateRequest.getCategoryName() != null) {
+            updateCategory(item, updateRequest.getCategoryName());
+        }
+
+        if (updateRequest.getDescription() != null) {
+            item.setDescription(updateRequest.getDescription());
+        }
+
+        if (updateRequest.getImageUrl())
+    }
+
+    /**
+     * Updates the category of an existing item.
+     * 
+     * @param updateItem the item to be updated
+     * @param categoryName the name of the new category
+     */
+    private void updateCategory(Item updateItem, String categoryName) {
+        Category newCategory = categoryRepository.findByName(categoryName).orElseThrow(() -> new IllegalArgumentException("Category does not exist: " + categoryName));
+        updateItem.setCategory(newCategory);
+    }
 }

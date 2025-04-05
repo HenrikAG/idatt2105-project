@@ -59,7 +59,7 @@ public class ItemTest {
 
         @Test
         void shouldGetCorrectImageName() {
-            assertEquals(expectedImageName, item.getImageName());
+            assertEquals(expectedImageName, item.getImageUrl());
         }
     }
 }

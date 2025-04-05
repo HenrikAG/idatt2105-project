@@ -64,12 +64,30 @@ public class Item {
     }
 
     /**
+     * Updates the name of the item.
+     * 
+     * @param name the new name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * Returns the category of the item.
      * 
      * @return the category of the item
      */
     public Category getCategory() {
         return category;
+    }
+
+    /**
+     * Updates the category of the item.
+     * 
+     * @param category the new category.
+     */
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     /**
@@ -82,11 +100,29 @@ public class Item {
     }
 
     /**
+     * Updates the description of the item.
+     * 
+     * @param description the new description.,
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
      * Returns the name of the imagefile of the item.
      * 
      * @return the name of an image of the item.
      */
     public String getImageName() {
         return imageName;
+    }
+
+    /**
+     * Updates the url of the image of the item.
+     * 
+     * @param imageName the new image URL
+     */
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 }

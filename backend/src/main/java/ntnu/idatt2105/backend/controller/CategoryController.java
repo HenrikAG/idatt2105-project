@@ -36,7 +36,7 @@ public class CategoryController {
     */
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
-        logger.info("A user is trying to get all the items.");
+        logger.info("A user is trying to get all existing categories.");
         List<Category> categories = categoryService.getAllCategories();
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
