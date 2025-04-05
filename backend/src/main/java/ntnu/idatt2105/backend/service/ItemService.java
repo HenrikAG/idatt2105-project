@@ -62,22 +62,38 @@ public class ItemService {
         return itemRepository.save(newItem);
     }
 
+    /**
+     * Updates the item with the specified id with the non-null values in the itemDTO object.
+     * 
+     * @param id the id of the item to be updated
+     * @param updateRequest an itemDTO with the new values
+     * @return the updated item
+     * @throws IllegalArgumentException if there is an error with one of the new values. If the category does not exist.
+     */
     public Item updateItem(Long id, ItemDTO updateRequest) {
-        Item item = itemRepository.findById(id).orElseThrow(getImageUrl);
+        Item item = itemRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Item not found with id: " + id));
 
-        if (updateRequest.getName() != null) {
-            item.setName(updateRequest.getName());
+        try {
+            if (updateRequest.getName() != null) {
+                item.setName(updateRequest.getName());
+            }
+
+            if (updateRequest.getCategoryName() != null) {
+                updateCategory(item, updateRequest.getCategoryName());
+            }
+
+            if (updateRequest.getDescription() != null) {
+                item.setDescription(updateRequest.getDescription());
+            }
+
+            if (updateRequest.getImageName() != null) {
+                item.setImageName(updateRequest.getImageName());
+            }
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("There was an error updating the item: " + exception.getMessage());
         }
 
-        if (updateRequest.getCategoryName() != null) {
-            updateCategory(item, updateRequest.getCategoryName());
-        }
-
-        if (updateRequest.getDescription() != null) {
-            item.setDescription(updateRequest.getDescription());
-        }
-
-        if (updateRequest.getImageUrl())
+        return item;
     }
 
     /**
@@ -85,9 +101,10 @@ public class ItemService {
      * 
      * @param updateItem the item to be updated
      * @param categoryName the name of the new category
+     * @throws IllegalArgumentException if there is no category with the name specified
      */
     private void updateCategory(Item updateItem, String categoryName) {
-        Category newCategory = categoryRepository.findByName(categoryName).orElseThrow(() -> new IllegalArgumentException("Category does not exist: " + categoryName));
+        Category newCategory = categoryRepository.findByName(categoryName).orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryName));
         updateItem.setCategory(newCategory);
     }
 }
