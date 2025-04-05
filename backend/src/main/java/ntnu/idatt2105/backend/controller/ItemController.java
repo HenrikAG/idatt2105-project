@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
+import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.Item;
 import ntnu.idatt2105.backend.service.ItemService;
 
@@ -72,7 +73,19 @@ public class ItemController {
             return new ResponseEntity<>("Item updated successfully", HttpStatus.OK);
         } catch (IllegalArgumentException exception) {
             logger.warn("There was an error trying to update item: " + id + ", with the info: " + itemUpdateRequest);
-            return new ResponseEntity<>("Error " + exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error: " + exception.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<?> deleteItem(@PathVariable Long id) {
+        logger.info("User is trying to delete item with id: " + id);
+
+        try {
+            itemService.deleteItem(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (NotFoundException exception) {
+            logger.warn("Failed to delete. No item with id: " + id);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 }

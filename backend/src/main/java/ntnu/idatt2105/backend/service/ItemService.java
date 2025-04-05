@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
+import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.model.Item;
 import ntnu.idatt2105.backend.repository.CategoryRepository;
@@ -106,5 +107,10 @@ public class ItemService {
     private void updateCategory(Item updateItem, String categoryName) {
         Category newCategory = categoryRepository.findByName(categoryName).orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryName));
         updateItem.setCategory(newCategory);
+    }
+
+    public void deleteItem(Long id) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new NotFoundException("No item found with id: " + id));
+        itemRepository.delete(item);
     }
 }
