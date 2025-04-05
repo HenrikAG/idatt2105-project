@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,7 @@ public class ItemController {
      * @param categoryName the name of the category you want to retrieve items of
      * @return A ResponseEntity with the items with the category and the HttpStatus code, or the exception and the HttpStatus code.
      */
-    @RequestMapping("/{categoryName}")
+    @GetMapping("/{categoryName}")
     public ResponseEntity<?> getItemsByCategory(@PathVariable String categoryName) {
         try {
             List<Item> categoryItems = itemService.getItemsByCategoryName(categoryName);
