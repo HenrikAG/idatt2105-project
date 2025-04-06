@@ -16,6 +16,7 @@ public class ItemDTO {
     /**
      * Constructor for itemDTO.
      * 
+     * @param id the id of the item
      * @param name the name of the item
      * @param description a description of the item
      * @param categoryName the name of the items category
@@ -24,6 +25,24 @@ public class ItemDTO {
     public ItemDTO(@JsonProperty("item_id") long id, @JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
      @JsonProperty("category") String categoryName, @JsonProperty("imageURL") String imageName) {
         this.id = id;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.categoryName = categoryName;
+        this.imageName = imageName;
+    }
+
+    /**
+     * Constructs an ItemDTO with no id.
+     * 
+     * @param name
+     * @param price
+     * @param description
+     * @param categoryName
+     * @param imageName
+     */
+    public ItemDTO(@JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
+     @JsonProperty("category") String categoryName, @JsonProperty("imageURL") String imageName) {
         this.name = name;
         this.price = price;
         this.description = description;

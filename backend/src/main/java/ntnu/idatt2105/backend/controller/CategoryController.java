@@ -20,7 +20,7 @@ import ntnu.idatt2105.backend.service.CategoryService;
  */
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
 public class CategoryController {
     private static Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
