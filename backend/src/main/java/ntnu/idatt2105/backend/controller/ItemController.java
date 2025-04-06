@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
+import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
 import ntnu.idatt2105.backend.dto.ItemRequestDTO;
 import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.Item;
@@ -61,7 +62,7 @@ public class ItemController {
      * @return A ResponseEntity with the registered item an ok status code, or the exception message and the HttpStatus code.
      */
     @PostMapping("/post")
-    public ResponseEntity<?> postItem(@RequestBody ItemDTO itemRequest) {
+    public ResponseEntity<?> postItem(@RequestBody ItemRegisterDTO itemRequest) {
         logger.info("A user is trying to post the following item: " + itemRequest);
         try {
             Item newItem = itemService.registerItem(itemRequest);

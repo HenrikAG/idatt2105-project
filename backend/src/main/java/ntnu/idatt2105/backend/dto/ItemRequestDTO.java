@@ -20,7 +20,7 @@ public class ItemRequestDTO {
      * @param imageName the filename of an image of the item
      */
     public ItemRequestDTO(@JsonProperty("item_id") long id, @JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
-     @JsonProperty("category") String categoryName, @JsonProperty("imageURL") String imageName) {
+     @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageName) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -84,7 +84,7 @@ public class ItemRequestDTO {
      * 
      * @return the filename of the image of the item.
      */
-    @JsonProperty("image_URL")
+    @JsonProperty("image_url")
     public String getImageName() {
         return imageName;
     }
