@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router';
+import ChatOverlay from '@/components/myComponents/ChatOverlay.vue';
 </script>
 
 <template>
@@ -14,6 +15,9 @@ import { RouterLink, RouterView } from 'vue-router';
   <main>
     <RouterView />
   </main>
+  <footer> 
+    <ChatOverlay />
+  </footer>
 </template>
 
 <style scoped>
