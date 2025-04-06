@@ -1,17 +1,18 @@
 <template>
-    <div class="category-grid">
-      <div v-if="foundCategories">
-        <!-- Move the Category component inside the v-for loop -->
-        <div v-for="category in categories" :key="category.name" class="category-item">
-          <Category 
-            :category="category" 
-            @select-category="goToCategory"
-          />
-        </div>
+    <div v-if="loading" class="loading">
+      <p>Loading categories...</p>
+    </div>
+    <div v-else-if="foundCategories" class="category-grid">
+      <!-- Apply directly to the v-for items -->
+      <div v-for="category in categories" :key="category.name" class="category-item">
+        <Category 
+          :category="category" 
+          @select-category="goToCategory"
+        />
       </div>
-      <div v-else>
-        <p>Error: Unable to fetch categories.</p>
-      </div>
+    </div>
+    <div v-else class="error">
+      <p>Error: Unable to fetch categories.</p>
     </div>
   </template>
   
@@ -29,16 +30,20 @@
     setup() {
       const categories = ref([]);
       const router = useRouter();
-      const foundCategories = ref<boolean>(false); 
-  
+      const foundCategories = ref<boolean>(false);
+      const loading = ref<boolean>(true); // Add loading state
+      
       const fetchCategories = async () => {
+        loading.value = true; // Set loading to true when starting the request
         try {
-          // Changed to use the full URL, matching your other components
           const response = await axios.get('http://localhost:8080/api/categories');
           categories.value = response.data;
           foundCategories.value = true;
         } catch (error) {
           console.error('Error fetching categories:', error);
+          foundCategories.value = false; // Explicitly set to false on error
+        } finally {
+          loading.value = false; // Set loading to false when request completes
         }
       };
   
@@ -53,7 +58,8 @@
       return {
         categories,
         goToCategory,
-        foundCategories // Added foundCategories to the return object
+        foundCategories,
+        loading // Add loading to the return object
       };
     }
   };
@@ -69,5 +75,16 @@
   
   .category-item {
     width: 100%;
+  }
+  
+  .loading, .error {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+    font-size: 1.1rem;
+  }
+  
+  .error {
+    color: #e53935;
   }
   </style>
