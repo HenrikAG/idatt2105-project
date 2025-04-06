@@ -43,7 +43,7 @@ export default {
 
         const searchCategory = () => {
             if (selectedCategory.value && searchString.value) {
-                router.push(`/category/${selectedCategory.value}?search=${encodeURIComponent(searchString.value)}`);
+                router.push(`/categories/${selectedCategory.value}?search=${encodeURIComponent(searchString.value)}`);
             }
         };
 
@@ -58,7 +58,7 @@ export default {
             selectedCategory,
             searchString,
             searchUserString, // Added this
-            searchCategory,   // Changed from search to searchCategory
+            searchCategory, // Changed from search to searchCategory
             searchUser        // Added this
         };
     }
