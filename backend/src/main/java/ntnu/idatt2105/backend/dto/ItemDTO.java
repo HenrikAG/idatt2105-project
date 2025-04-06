@@ -2,8 +2,6 @@ package ntnu.idatt2105.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import ntnu.idatt2105.backend.model.Item;
-
 /**
  * Data Transfer Object (DTO) for items.
  */
@@ -24,7 +22,7 @@ public class ItemDTO {
      * @param imageName
      */
     public ItemDTO(@JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
-     @JsonProperty("category") String categoryName, @JsonProperty("imageURL") String imageName) {
+     @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageName) {
         this.name = name;
         this.price = price;
         this.description = description;
@@ -77,7 +75,7 @@ public class ItemDTO {
      * 
      * @return the filename of the image of the item.
      */
-    @JsonProperty("imageURL")
+    @JsonProperty("image_url")
     public String getImageName() {
         return imageName;
     }
