@@ -5,7 +5,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
 import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.model.User;
