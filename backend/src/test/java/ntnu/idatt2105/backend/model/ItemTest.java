@@ -15,13 +15,14 @@ public class ItemTest {
     private Item emptyItem;
 
     private final String expectedName = "testItem";
+    private final double expectedPrice = 9.99;
     private final Category expectedCategory = new Category("testCategory");
     private final String expectedDescription = "description";
     private final String expectedImageName = "test.jpg";
 
     @BeforeEach
     void setUp() {
-        item = new Item(expectedName, expectedCategory, expectedDescription, expectedImageName);
+        item = new Item(expectedName, expectedPrice, expectedCategory, expectedDescription, expectedImageName);
         emptyItem = new Item();
     }
 
@@ -45,6 +46,11 @@ public class ItemTest {
         @Test
         void shouldGetCorrectName() {
             assertEquals(expectedName, item.getName());
+        }
+
+        @Test
+        void shouldGetCorrectPrice() {
+            assertEquals(expectedPrice, item.getPrice());
         }
 
         @Test

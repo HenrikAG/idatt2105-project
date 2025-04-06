@@ -23,6 +23,9 @@ public class Item {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "price", nullable = false)
+    private double price;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
@@ -43,12 +46,14 @@ public class Item {
      * Constructor for Item class.
      * 
      * @param name the name of the item
+     * @param price the price the item is being listed for
      * @param category the category of the item
      * @param description a description of the item
      * @param imageName the name of an image of the item
      */
-    public Item(String name, Category category, String description, String imageName) {
+    public Item(String name, double price, Category category, String description, String imageName) {
         this.name = name;
+        this.price = price;
         this.category = category;
         this.description = description;
         this.imageName = imageName;
@@ -64,12 +69,48 @@ public class Item {
     }
 
     /**
+     * Updates the name of the item.
+     * 
+     * @param name the new name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Returns the price of the item.
+     * 
+     * @return the price of the item.
+     */
+    public double getPrice() {
+        return price;
+    }
+
+    /**
+     * Updates the price of the item.
+     * 
+     * @param price the new price
+     */
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    /**
      * Returns the category of the item.
      * 
      * @return the category of the item
      */
     public Category getCategory() {
         return category;
+    }
+
+    /**
+     * Updates the category of the item.
+     * 
+     * @param category the new category.
+     */
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     /**
@@ -82,11 +123,29 @@ public class Item {
     }
 
     /**
+     * Updates the description of the item.
+     * 
+     * @param description the new description.,
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
      * Returns the name of the imagefile of the item.
      * 
      * @return the name of an image of the item.
      */
     public String getImageName() {
         return imageName;
+    }
+
+    /**
+     * Updates the url of the image of the item.
+     * 
+     * @param imageName the new image URL
+     */
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 }
