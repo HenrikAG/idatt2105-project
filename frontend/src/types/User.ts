@@ -6,6 +6,6 @@ export interface User {
     email: string;
     phoneNumber?: string;
     products?: Product[];
-    imageUrl?: string;
+    image_url?: string;
     validMarker: boolean;
 }
