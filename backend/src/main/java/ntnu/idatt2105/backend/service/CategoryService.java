@@ -28,4 +28,12 @@ public class CategoryService {
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
+
+    public Category addCategory(Category category) {
+        if (categoryRepository.findByName(category.getName()).isPresent()) {
+            throw new IllegalArgumentException("This category already exists.");
+        }
+
+        return categoryRepository.save(category);
+    }
 }
