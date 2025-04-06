@@ -1,10 +1,14 @@
 package ntnu.idatt2105.backend.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /**
@@ -24,6 +28,9 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @OneToMany(mappedBy = "seller")
+    private Set<Item> listedItems = new HashSet<>();
+
     /**
      * Empty constructor required for JPA.
      */
@@ -39,6 +46,15 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    /**
+     * Returns the ID of the user.
+     * 
+     * @return the ID of the user
+     */
+    public long getId() {
+        return id;
     }
 
     /**
@@ -58,4 +74,6 @@ public class User {
     public String getPassword() {
         return password;
     }
+
+
 }
