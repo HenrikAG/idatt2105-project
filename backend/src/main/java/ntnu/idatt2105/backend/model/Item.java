@@ -75,6 +75,15 @@ public class Item {
     }
 
     /**
+     * Returns the id of the item
+     * 
+     * @return the id of the item
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
      * Returns the name of the item.
      * 
      * @return the name of the item

@@ -2,6 +2,8 @@ package ntnu.idatt2105.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ntnu.idatt2105.backend.model.Item;
+
 /**
  * Data Transfer Object (DTO) for items.
  */

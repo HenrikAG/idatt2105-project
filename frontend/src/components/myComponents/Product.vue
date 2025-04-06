@@ -16,7 +16,7 @@
       <div v-if="isExpanded" class="expanded-content">
         <p class="description">{{ product.description }}</p>
         <div class="product-details">
-          <p class="category">Category ID: {{ product.categoryId }}</p>
+          <p class="category">Category ID: {{ product.category }}</p>
           <p class="user">Seller ID: {{ product.userId }}</p>
           <!--p class="dates">Listed on: {{ new Date(product.createdAt).toLocaleDateString() }}</p>-->
         </div>
