@@ -2,6 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/myViews/HomeView.vue'
 import CategoryView from '@/views/myViews/CategoryView.vue'
 import ProductsView from '@/views/myViews/ProductsView.vue'
+import MyUserView from '@/views/myViews/MyuserView.vue'
+import SearchView from '@/views/myViews/SearchView.vue'
+import SearchUserView from '@/views/myViews/UsersView.vue'
+import Users from '@/components/myComponents/Users.vue'
+import UsersView from '@/views/myViews/UsersView.vue'
+import Login from '@/views/myViews/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,27 +30,27 @@ const router = createRouter({
     {
       path : '/my-user',
       name : 'myUser',
-      redirect: '/',
-    },
-    {
-      path : '/user/:id',
-      name : 'userId',
-      redirect: '/',
+      component : MyUserView,
     },
     {
       path : '/search',
       name : 'search',
-      redirect: '/',
+      component : SearchView,
+    },
+    {
+      path : '/login',
+      name : 'login',
+      component : Login,
     },
     {
       path : '/search/user/:id',
       name : 'searchUserId',
-      redirect: '/',
+      component : SearchUserView,
     },
     {
       path : '/search/product/:id',
       name : 'searchProductId',
-      redirect: '/',
+      component : ProductsView
     },
 
   ],

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Users from '@/components/myComponents/Users.vue';
+import Myuser from '@/components/myComponents/Myuser.vue';
 </script>
 
 <template>
   <main>
-    <Users />
+    <Myuser />
   </main>
 </template>
