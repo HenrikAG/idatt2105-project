@@ -27,11 +27,10 @@ export default {
     methods: {
         async fetchProducts() {
             try {
-                const categoryId = this.$route.params.id;
-                let url = `http://localhost:8080/api/items/${categoryId}`;
+                const category = this.$route.params.id;
+                let url = `http://localhost:8080/api/items/${category}`;
                 const response = await axios.get(url);
                 this.products = response.data;
-
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
