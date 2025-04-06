@@ -59,7 +59,7 @@ public class ItemService {
             throw new IllegalArgumentException("Category doesent exist: " + itemRequest.getCategoryName());
         }
 
-        Item newItem = new Item(itemRequest.getName(), itemCategory.get(), itemRequest.getDescription(), itemRequest.getImageName());
+        Item newItem = new Item(itemRequest.getName(), itemRequest.getPrice(), itemCategory.get(), itemRequest.getDescription(), itemRequest.getImageName());
         return itemRepository.save(newItem);
     }
 

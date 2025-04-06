@@ -23,6 +23,9 @@ public class Item {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "price", nullable = false)
+    private double price;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
@@ -43,12 +46,14 @@ public class Item {
      * Constructor for Item class.
      * 
      * @param name the name of the item
+     * @param price the price the item is being listed for
      * @param category the category of the item
      * @param description a description of the item
      * @param imageName the name of an image of the item
      */
-    public Item(String name, Category category, String description, String imageName) {
+    public Item(String name, double price, Category category, String description, String imageName) {
         this.name = name;
+        this.price = price;
         this.category = category;
         this.description = description;
         this.imageName = imageName;
@@ -70,6 +75,24 @@ public class Item {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Returns the price of the item.
+     * 
+     * @return the price of the item.
+     */
+    public double getPrice() {
+        return price;
+    }
+
+    /**
+     * Updates the price of the item.
+     * 
+     * @param price the new price
+     */
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     /**
