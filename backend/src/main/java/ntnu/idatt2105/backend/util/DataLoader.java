@@ -2,13 +2,16 @@ package ntnu.idatt2105.backend.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.service.CategoryService;
 import ntnu.idatt2105.backend.service.ItemService;
 
-public class DataLoader {
+@Component
+public class DataLoader implements ApplicationRunner {
     private ItemService itemService;
     private CategoryService categoryService;
 
