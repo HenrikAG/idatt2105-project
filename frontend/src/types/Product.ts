@@ -5,6 +5,7 @@ export interface Product {
     price: number;
     imageUrl?: string;
     categoryId: number;
+    location?: string;
     //createdAt: string;
     //updatedAt: string;
     userId: number;
