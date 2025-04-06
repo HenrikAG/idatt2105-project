@@ -18,16 +18,17 @@
         <div class="product-details">
           <p class="category">Category ID: {{ product.categoryId }}</p>
           <p class="user">Seller ID: {{ product.userId }}</p>
-          <p class="dates">Listed on: {{ new Date(product.createdAt).toLocaleDateString() }}</p>
+          <!--p class="dates">Listed on: {{ new Date(product.createdAt).toLocaleDateString() }}</p>-->
         </div>
         
         <div class="user-details">
           <h2>Seller Information</h2>
-          <p class="user">Name: {{ user.name }}</p>
-          <p class="user">Email: {{ user.email }}</p>
-          <p v-if="user.phoneNumber" class="user">Phone: {{ user.phoneNumber }}</p>
-          <p v-if="user.address" class="user">Address: {{ user.address }}</p>
-          <img v-if="user.imageUrl" :src="user.imageUrl" alt="User profile picture" class="user-image">
+          <p class="user">Name: {{ userData.name }}</p>
+          <p class="user">Email: {{ userData.email }}</p>
+          <!--p v-if="user.phoneNumber" class="user">Phone: {{ user.phoneNumber }}</p>-->
+          <!--p v-if="user.address" class="user">Address: {{ user.address }}</p>-->
+          <!--img v-if="user.imageUrl" :src="user.imageUrl" alt="User profile picture" class="user-image">-->
+          <button id="contact-seller" @click="executeContactSeller(userData.id)">Contact Seller</button>
         </div>
       </div>
     </div>
@@ -47,9 +48,35 @@
   // State to track if the product details are expanded
   const isExpanded = ref(false)
   
-  // Toggle the expanded state
-  const toggleExpand = () => {
-    isExpanded.value = !isExpanded.value
+// Define local state for user data that can be updated
+const userData = ref<User>({ ...props.user });
+
+// Toggle the expanded state
+const toggleExpand = () => {
+  isExpanded.value = !isExpanded.value;
+  if (isExpanded.value) {
+    fetchUserData(props.product.userId);
+  }
+}
+
+const fetchUserData = async (userId: number) => {
+  try {
+    // Fetch user data from the API using the userId
+    const response = await fetch(`http://localhost:8080/api/users/${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch user data');
+    }
+    const data = await response.json();
+    // Update local state instead of the prop
+    userData.value = data;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+}
+
+  const executeContactSeller = (userId : number) => {
+    // Logic to contact the seller, e.g., opening a chat or sending an email
+    alert(`Contacting seller: ${userId}`)
   }
   </script>
   
@@ -144,6 +171,16 @@
     max-width: 80px;
     border-radius: 50%;
     margin-top: 8px;
+  }
+
+  #contact-seller {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
   
   @keyframes expand {
