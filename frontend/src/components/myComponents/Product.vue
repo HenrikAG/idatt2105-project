@@ -18,7 +18,7 @@
         <div class="product-details">
           <p class="category">Category ID: {{ product.categoryId }}</p>
           <p class="user">Seller ID: {{ product.userId }}</p>
-          <p class="dates">Listed on: {{ new Date(product.createdAt).toLocaleDateString() }}</p>
+          <!--p class="dates">Listed on: {{ new Date(product.createdAt).toLocaleDateString() }}</p>-->
         </div>
         
         <div class="user-details">
