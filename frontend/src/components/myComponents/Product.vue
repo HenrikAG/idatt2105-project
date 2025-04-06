@@ -7,7 +7,7 @@
         <img v-if="product.imageUrl" :src="product.imageUrl" alt="Product image" class="product-image">
         <div v-else class="product-image placeholder-image"></div>
         <div class="preview-details">
-          <h3>{{ product.name }}</h3>
+          <h3>{{ product.item_name }}</h3>
           <p class="price">{{ product.price }}$</p>
         </div>
       </div>
