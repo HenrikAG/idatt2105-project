@@ -18,14 +18,15 @@
 
 <script>
 import { ref, computed } from 'vue';
-import { useRoute, useRounter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-const searchUserString = ref('');
+
 export default {
     setup() {
         const categories = ref([]);
         const selectedCategory = ref(null);
         const searchString = ref('');
+        const searchUserString = ref(''); // Moved inside setup
         const router = useRouter();
         const route = useRoute();
 
@@ -42,14 +43,12 @@ export default {
 
         const searchCategory = () => {
             if (selectedCategory.value && searchString.value) {
-                const route = useRoute();
                 router.push(`/category/${selectedCategory.value}?search=${encodeURIComponent(searchString.value)}`);
             }
         };
 
         const searchUser = () => {
             if (searchUserString.value) {
-                const route = useRoute();
                 router.push(`/user?search=${encodeURIComponent(searchUserString.value)}`);
             }
         };
@@ -58,13 +57,16 @@ export default {
             categories,
             selectedCategory,
             searchString,
-            search,
+            searchUserString, // Added this
+            searchCategory,   // Changed from search to searchCategory
+            searchUser        // Added this
         };
-    },
+    }
 };
 </script>
 
 <style scoped>
+/* Your styling remains the same */
 .search-component {
     margin: 20px;
 }
