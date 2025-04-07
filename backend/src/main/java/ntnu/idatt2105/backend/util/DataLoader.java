@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
+import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.model.User;
 import ntnu.idatt2105.backend.repository.UserRepository;
@@ -26,7 +27,7 @@ public class DataLoader implements ApplicationRunner {
     }
 
     public void run(ApplicationArguments args) {
-        User testUser = new User("Username", "password123");
+        User testUser = new User("Username", "password123", Role.USER);
         userRepository.save(testUser);
         long userId = userRepository.findByUsername("Username").get().getId();
 
