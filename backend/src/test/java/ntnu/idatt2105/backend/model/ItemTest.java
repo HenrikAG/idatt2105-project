@@ -19,10 +19,11 @@ public class ItemTest {
     private final Category expectedCategory = new Category("testCategory");
     private final String expectedDescription = "description";
     private final String expectedImageName = "test.jpg";
+    private final User seller = new User();
 
     @BeforeEach
     void setUp() {
-        item = new Item(expectedName, expectedPrice, expectedCategory, expectedDescription, expectedImageName);
+        item = new Item(expectedName, expectedPrice, expectedCategory, expectedDescription, expectedImageName, seller);
         emptyItem = new Item();
     }
 

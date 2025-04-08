@@ -36,6 +36,10 @@ public class Item {
     @Column(name = "image_name", nullable = true)
     private String imageName;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User seller;
+
     /**
      * Empty constructor required for JPA.
      */
@@ -50,13 +54,24 @@ public class Item {
      * @param category the category of the item
      * @param description a description of the item
      * @param imageName the name of an image of the item
+     * @param seller the user selling the item
      */
-    public Item(String name, double price, Category category, String description, String imageName) {
+    public Item(String name, double price, Category category, String description, String imageName, User seller) {
         this.name = name;
         this.price = price;
         this.category = category;
         this.description = description;
         this.imageName = imageName;
+        this.seller = seller;
+    }
+
+    /**
+     * Returns the id of the item
+     * 
+     * @return the id of the item
+     */
+    public long getId() {
+        return id;
     }
 
     /**
@@ -147,5 +162,14 @@ public class Item {
      */
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+
+    /**
+     * Returns the user selling the item.
+     * 
+     * @return the user selling the item.
+     */
+    public User getSeller() {
+        return seller;
     }
 }
