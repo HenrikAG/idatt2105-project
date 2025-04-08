@@ -5,11 +5,14 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import ntnu.idatt2105.backend.enums.Role;
 
 /**
  * Entity representing a user.
@@ -31,6 +34,10 @@ public class User {
     @OneToMany(mappedBy = "seller")
     private Set<Item> listedItems = new HashSet<>();
 
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     /**
      * Empty constructor required for JPA.
      */
@@ -42,10 +49,12 @@ public class User {
      * 
      * @param username the username of the user
      * @param password the password of the user
+     * @param role the role of the user (USER or ADMIN)
      */
-    public User(String username, String password) {
+    public User(String username, String password, Role role) {
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 
     /**
@@ -67,6 +76,15 @@ public class User {
     }
 
     /**
+     * Sets the username of the user.
+     * 
+     * @param username the username the user will be assigned
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
      * Returns the password of the user.
      * 
      * @return the password of the user.
@@ -75,5 +93,30 @@ public class User {
         return password;
     }
 
+    /**
+     * Sets the password of the user.
+     * 
+     * @param password the password the user will be assigned
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
+    /**
+     * Returns the role assigned to the user
+     * 
+     * @return the users role
+     */
+    public Role getRole() {
+        return role;
+    }
+
+    /**
+     * Sets the role of the user.
+     * 
+     * @param role the role the user will be assigned
+     */
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
