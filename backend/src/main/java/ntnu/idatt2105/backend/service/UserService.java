@@ -1,6 +1,7 @@
 package ntnu.idatt2105.backend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ntnu.idatt2105.backend.dto.UserDTO;
@@ -16,15 +17,18 @@ import ntnu.idatt2105.backend.repository.UserRepository;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Constructs a UserService.
      * 
-     * @param userRepository a repository to access and register user data.
+     * @param userRepository a repository to access and register user data
+     * @param passwordEncoder encoder to encode user passwords
      */
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -37,13 +41,11 @@ public class UserService {
         if (userExists(userRegisterInfo.getUsername())) {
             throw new AlreadyExistsException("User with username already exists. Username: " + userRegisterInfo.getUsername());
         }
-        //TODO Add check for admin password and set role to admin.
-        Role userRole = Role.USER;
 
         User newUser = new User();
         newUser.setUsername(userRegisterInfo.getUsername());
-        newUser.setPassword(userRegisterInfo.getPassword());
-        newUser.setRole(userRole);
+        newUser.setPassword(passwordEncoder.encode(userRegisterInfo.getPassword()));
+        newUser.setRole(Role.USER);
 
         return new UserDTO(userRepository.save(newUser));
     }

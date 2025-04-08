@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ntnu.idatt2105.backend.dto.LoginRequest;
+import ntnu.idatt2105.backend.dto.LoginResponse;
 import ntnu.idatt2105.backend.dto.UserRegisterDTO;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
+import ntnu.idatt2105.backend.security.JWTService;
 import ntnu.idatt2105.backend.service.UserService;
 
 /**
@@ -31,6 +33,7 @@ public class UserController {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final JWTService jwtService;
 
     /**
      * Constructs a UserController.
@@ -38,9 +41,10 @@ public class UserController {
      * @param userService a UserService to handle buisness logic regarding users.
      */
     @Autowired
-    public UserController(AuthenticationManager authenticationManager, UserService userService) {
+    public UserController(AuthenticationManager authenticationManager, UserService userService, JWTService jwtService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     /**
@@ -63,7 +67,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        logger.info("Atempting to login with username: {}", loginRequest.getUsername());
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(),
@@ -71,7 +76,8 @@ public class UserController {
             )
         );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("User signed in", HttpStatus.OK);
+        String token = jwtService.generateToken(authentication);
+        LoginResponse response = new LoginResponse(token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

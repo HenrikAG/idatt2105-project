@@ -3,6 +3,7 @@ package ntnu.idatt2105.backend.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
@@ -18,16 +19,22 @@ public class DataLoader implements ApplicationRunner {
     private ItemService itemService;
     private CategoryService categoryService;
     private UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DataLoader(ItemService itemService, CategoryService categoryService, UserRepository userRepository) {
+    public DataLoader(ItemService itemService, CategoryService categoryService, UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
+
         this.itemService = itemService;
         this.categoryService = categoryService;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public void run(ApplicationArguments args) {
-        User testUser = new User("Username", "password123", Role.USER);
+        User testUser = new User("Username", passwordEncoder.encode("password123"), Role.USER);
+        User admin = new User("Admin", passwordEncoder.encode("PasswordAdmin123"), Role.ADMIN);
+        userRepository.save(admin);
         userRepository.save(testUser);
         long userId = userRepository.findByUsername("Username").get().getId();
 

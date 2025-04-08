@@ -25,8 +25,15 @@ public class JWTService {
         Instant expiry = now.plusMillis(JWT_TOKEN_VALIDITY.toMillis());
         Algorithm hmac512 = Algorithm.HMAC512(tempKey);
 
+        String role = authentication.getAuthorities().stream()
+            .findFirst()
+            .map(grantedAuthority -> grantedAuthority
+            .getAuthority())
+            .get();
+
         String token = JWT.create()
             .withSubject(authentication.getName())
+            .withClaim("role", role)
             .withIssuedAt(now)
             .withExpiresAt(expiry)
             .sign(hmac512);
