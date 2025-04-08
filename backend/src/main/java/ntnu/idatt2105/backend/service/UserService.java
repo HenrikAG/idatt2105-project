@@ -1,13 +1,20 @@
 package ntnu.idatt2105.backend.service;
 
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.dto.UserDTO;
 import ntnu.idatt2105.backend.dto.UserRegisterDTO;
 import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
+import ntnu.idatt2105.backend.model.Item;
 import ntnu.idatt2105.backend.model.User;
 import ntnu.idatt2105.backend.repository.UserRepository;
 
@@ -58,5 +65,34 @@ public class UserService {
      */
     public boolean userExists(String username) {
         return userRepository.findByUsername(username).isPresent();
+    }
+
+    /**
+     * Returns a list of all the items from a user's favorite categories.
+     * 
+     * @param username the username of the user
+     * @return list of all the items from the user's favorite categories
+     */
+    public List<ItemDTO> getItemsFromFavoriteCategories(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not not found with username" + username));
+
+        List<ItemDTO> favItems = user.getFavoriteCategories().stream()
+            .flatMap(category -> category.getItems().stream())
+            .map(ItemDTO::new)
+            .collect(Collectors.toList());
+
+        return favItems;
+    }
+
+    /**
+     * Returns a list of all the registered users as UserDTOs.
+     * 
+     * @return a list of all registered users as UserDTOs
+     */
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+            .map(UserDTO::new)
+            .collect(Collectors.toList());
     }
 }

@@ -10,6 +10,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import ntnu.idatt2105.backend.enums.Role;
@@ -33,6 +36,14 @@ public class User {
 
     @OneToMany(mappedBy = "seller")
     private Set<Item> listedItems = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_favorite_categories",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> favoriteCategories = new HashSet<>();
 
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -118,5 +129,14 @@ public class User {
      */
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    /**
+     * Returns the users favorite categories.
+     * 
+     * @return A set containing the user's favorite categories
+     */
+    public Set<Category> getFavoriteCategories() {
+        return favoriteCategories;
     }
 }
