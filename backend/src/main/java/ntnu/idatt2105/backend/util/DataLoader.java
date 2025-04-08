@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import ntnu.idatt2105.backend.dto.CategoryRegisterDTO;
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
 import ntnu.idatt2105.backend.enums.Role;
-import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.model.User;
 import ntnu.idatt2105.backend.repository.UserRepository;
 import ntnu.idatt2105.backend.service.CategoryService;

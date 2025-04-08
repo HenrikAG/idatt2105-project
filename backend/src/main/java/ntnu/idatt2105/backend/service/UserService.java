@@ -1,7 +1,6 @@
 package ntnu.idatt2105.backend.service;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import ntnu.idatt2105.backend.dto.UserDTO;
 import ntnu.idatt2105.backend.dto.UserRegisterDTO;
 import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
-import ntnu.idatt2105.backend.model.Item;
 import ntnu.idatt2105.backend.model.User;
 import ntnu.idatt2105.backend.repository.UserRepository;
 
