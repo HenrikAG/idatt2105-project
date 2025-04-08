@@ -76,6 +76,15 @@ public class User {
     }
 
     /**
+     * Sets the username of the user.
+     * 
+     * @param username the username the user will be assigned
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
      * Returns the password of the user.
      * 
      * @return the password of the user.
@@ -85,11 +94,29 @@ public class User {
     }
 
     /**
+     * Sets the password of the user.
+     * 
+     * @param password the password the user will be assigned
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
      * Returns the role assigned to the user
      * 
      * @return the users role
      */
     public Role getRole() {
         return role;
+    }
+
+    /**
+     * Sets the role of the user.
+     * 
+     * @param role the role the user will be assigned
+     */
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

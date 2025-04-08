@@ -50,6 +50,6 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService();
+        return userDetailsService;
     }
 }
