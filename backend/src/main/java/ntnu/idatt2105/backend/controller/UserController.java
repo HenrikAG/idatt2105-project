@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.dto.LoginRequest;
 import ntnu.idatt2105.backend.dto.LoginResponse;
+import ntnu.idatt2105.backend.dto.UserDTO;
 import ntnu.idatt2105.backend.dto.UserRegisterDTO;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
 import ntnu.idatt2105.backend.security.JWTService;
@@ -102,5 +103,16 @@ public class UserController {
         } catch (UsernameNotFoundException exception) {
             return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    /**
+     * Returns all registered users.
+     * 
+     * @return a ResponseEntity with a list of all of the registered users.
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> userDTOs = userService.getAllUsers();
+        return new ResponseEntity<>(userDTOs, HttpStatus.OK);
     }
 }

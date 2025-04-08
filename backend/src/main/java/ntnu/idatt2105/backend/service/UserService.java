@@ -1,6 +1,7 @@
 package ntnu.idatt2105.backend.service;
 
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,5 +83,16 @@ public class UserService {
             .collect(Collectors.toList());
 
         return favItems;
+    }
+
+    /**
+     * Returns a list of all the registered users as UserDTOs.
+     * 
+     * @return a list of all registered users as UserDTOs
+     */
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+            .map(UserDTO::new)
+            .collect(Collectors.toList());
     }
 }
