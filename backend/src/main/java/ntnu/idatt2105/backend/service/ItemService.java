@@ -66,8 +66,8 @@ public class ItemService {
     public Item registerItem(ItemRegisterDTO itemRequest) {
         Category itemCategory = categoryRepository.findByName(itemRequest.getCategoryName())
             .orElseThrow(() -> new NotFoundException("Category not found. Categoryname: " + itemRequest.getCategoryName()));
-        User seller = userRepository.findById(itemRequest.getUserId())
-            .orElseThrow(() -> new NotFoundException("User not found. User ID: " + itemRequest.getUserId()));
+        User seller = userRepository.findByUsername(itemRequest.getUsername())
+            .orElseThrow(() -> new NotFoundException("User with username: " + itemRequest.getUsername() + " not found."));
 
         Item newItem = new Item(itemRequest.getName(), itemRequest.getPrice(), itemCategory, itemRequest.getDescription(), itemRequest.getImageUrl(), seller);
         return itemRepository.save(newItem);
