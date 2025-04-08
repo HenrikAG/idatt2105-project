@@ -24,7 +24,9 @@ public class SecurityConfig {
     }
 
 
-    private static final String[] AUTH_WHITELIST = {};
+    private static final String[] AUTH_WHITELIST = {
+        "/api/user/register"
+    };
 
     /**
      * Configures the security filter chain.

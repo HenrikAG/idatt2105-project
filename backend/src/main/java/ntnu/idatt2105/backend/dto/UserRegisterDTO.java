@@ -1,7 +1,5 @@
 package ntnu.idatt2105.backend.dto;
 
-import ntnu.idatt2105.backend.enums.Role;
-
 /**
  * Data Transfer Object (DTO) used to register new users.
  */
