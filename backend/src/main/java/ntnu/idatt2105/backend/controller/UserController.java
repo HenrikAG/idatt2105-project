@@ -87,6 +87,13 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves all items from the categories the user has selected as favorites.
+     * 
+     * @param username the user's username
+     * @return a ResponseEntity with a list of all items from the user's favotrite categories, 
+     * or a ResponsEntity indicating a user was not found
+     */
     @GetMapping("/{userId}/favorite-items")
     public ResponseEntity<?> getItemsFromFavoriteCategories(@PathVariable String username) {
         try {

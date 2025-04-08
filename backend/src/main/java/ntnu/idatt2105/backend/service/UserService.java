@@ -66,6 +66,12 @@ public class UserService {
         return userRepository.findByUsername(username).isPresent();
     }
 
+    /**
+     * Returns a list of all the items from a user's favorite categories.
+     * 
+     * @param username the username of the user
+     * @return list of all the items from the user's favorite categories
+     */
     public List<ItemDTO> getItemsFromFavoriteCategories(String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not not found with username" + username));

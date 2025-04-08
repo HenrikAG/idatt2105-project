@@ -8,6 +8,7 @@ import ntnu.idatt2105.backend.model.Item;
  * Data Transfer Object (DTO) for items.
  */
 public class ItemDTO {
+    private long id;
     private String name;
     private double price;
     private String description;
@@ -17,14 +18,16 @@ public class ItemDTO {
     /**
      * Constructs an ItemDTO object.
      * 
+     * @param id
      * @param name
      * @param price
      * @param description
      * @param categoryName
      * @param imageName
      */
-    public ItemDTO(@JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
+    public ItemDTO(@JsonProperty("item_id") long id, @JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
      @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageName) {
+        this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
@@ -38,11 +41,22 @@ public class ItemDTO {
      * @param item the item to wrap as an ItemDTO
      */
     public ItemDTO(Item item) {
+        this.id = item.getId();
         this.name = item.getName();
         this.price = item.getPrice();
         this.description = item.getDescription();
         this.categoryName = item.getCategory().getName();
         this.imageName = item.getImageName();
+    }
+
+    /**
+     * Returns the id of the item.
+     * 
+     * @return the id of the item
+     */
+    @JsonProperty("item_id")
+    public long getId() {
+        return id;
     }
 
     /**
