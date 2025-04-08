@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import ntnu.idatt2105.backend.dto.CategoryRegisterDTO;
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
 import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.model.Category;
@@ -38,9 +39,9 @@ public class DataLoader implements ApplicationRunner {
         userRepository.save(testUser);
         long userId = userRepository.findByUsername("Username").get().getId();
 
-        Category electronics = new Category("Electronics");
-        Category books = new Category("Books");
-        Category clothing = new Category("Clothing");
+        CategoryRegisterDTO electronics = new CategoryRegisterDTO("Electronics");
+        CategoryRegisterDTO books = new CategoryRegisterDTO("Books");
+        CategoryRegisterDTO clothing = new CategoryRegisterDTO("Clothing");
 
         categoryService.addCategory(electronics);
         categoryService.addCategory(books);

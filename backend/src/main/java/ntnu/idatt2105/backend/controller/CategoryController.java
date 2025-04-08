@@ -9,9 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ntnu.idatt2105.backend.dto.CategoryRegisterDTO;
+import ntnu.idatt2105.backend.exception.AlreadyExistsException;
 import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.service.CategoryService;
 
@@ -41,5 +45,23 @@ public class CategoryController {
         logger.info("A user is trying to get all existing categories.");
         List<Category> categories = categoryService.getAllCategories();
         return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    /**
+     * Registers a new category.
+     * 
+     * @param registerDTO DTO with the name of the new category.
+     * @return a ResponseEntity with a String describing the result, and a status code.
+     */
+    @PostMapping
+    public ResponseEntity<String> registerCategory(@RequestBody CategoryRegisterDTO registerDTO) {
+        logger.info("Trying to register new categry with name: " + registerDTO.getName());
+
+        try {
+            categoryService.addCategory(registerDTO);
+            return new ResponseEntity<>("Successfully registered category", HttpStatus.CREATED);
+        } catch (AlreadyExistsException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+        }
     }
 }
