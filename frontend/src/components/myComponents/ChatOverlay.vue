@@ -136,7 +136,6 @@ onMounted(async () => {
   await fetchChats();
 });
 
-// Watch for changes to trigger UI updates
 watch(() => currentChat.value?.messages.length, () => {
   scrollToBottom();
 });
@@ -156,47 +155,30 @@ async function fetchChats() {
   error.value = null;
   
   try {
-    // In a real app, you'd fetch from your API
     const { data: chatData } = await axios.get(`/api/chats`, {
       params: { userId: currentUserId.value }
     });
-    
-    // Mock data for development
-    if (!chatData || !chatData.length) {
-      // Fallback to mock data
-      chats.value = mockChats();
-      users.value = mockUsers();
-    } else {
-      // Transform API response to match our interfaces
-      chats.value = chatData.map((chat: any) => ({
-        contactName: chat.otherUserName,
-        messages: chat.messages.map((msg: any) => ({
-          isSender: msg.senderId === currentUserId.value,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp),
-          read: msg.read || false
-        }))
-      }));
-      
-      // Fetch user data for chats
-      const contactNames = chats.value.map(c => c.contactName);
-      const { data: userData } = await axios.get(`/api/users`, {
-        params: { names: contactNames.join(',') }
-      });
-      
-      users.value = userData || mockUsers();
-    }
-    
-    // Calculate unread counts
+
+    chats.value = chatData.map((chat: any) => ({
+      contactName: chat.otherUserName,
+      messages: chat.messages.map((msg: any) => ({
+        isSender: msg.senderId === currentUserId.value,
+        content: msg.content,
+        timestamp: new Date(msg.timestamp),
+        read: msg.read || false
+      }))
+    }));
+
+    const contactNames = chats.value.map(c => c.contactName);
+    const { data: userData } = await axios.get(`/api/users`, {
+      params: { names: contactNames.join(',') }
+    });
+
+    users.value = userData;
     calculateUnreadCounts();
   } catch (err) {
     console.error('Failed to fetch chats:', err);
     error.value = 'Failed to load chats';
-    
-    // Fallback to mock data in development
-    chats.value = mockChats();
-    users.value = mockUsers();
-    calculateUnreadCounts();
   } finally {
     isLoading.value = false;
   }
@@ -211,14 +193,12 @@ async function sendMessage() {
     timestamp: new Date()
   };
   
-  // Optimistic UI update
   currentChat.value.messages.push(message);
   const tempMessage = newMessage.value;
   newMessage.value = '';
   
   scrollToBottom();
   
-  // Send to API
   isSending.value = true;
   try {
     await axios.post('/api/messages', {
@@ -242,17 +222,15 @@ function toggleChat() {
 
 function selectChat(chat: Chat) {
   currentChat.value = chat;
-  
-  // Mark messages as read
+
   if (chat.messages.length > 0) {
     chat.messages.forEach(msg => {
       if (!msg.isSender) msg.read = true;
     });
-    
-    // Update unread counts
+
     calculateUnreadCounts();
   }
-  
+
   nextTick(() => {
     scrollToBottom();
     if (messageInput.value) messageInput.value.focus();
@@ -319,39 +297,6 @@ function calculateUnreadCounts() {
   });
   
   unreadCounts.value = counts;
-}
-
-// Mock data for development
-function mockChats(): Chat[] {
-  return [
-    {
-      contactName: "John Doe",
-      messages: [
-        { isSender: false, content: 'Hi, is this item still available?', timestamp: new Date(Date.now() - 3600000) },
-        { isSender: true, content: 'Yes, it is!', timestamp: new Date(Date.now() - 3000000) },
-        { isSender: false, content: 'Great! I\'d like to buy it.', timestamp: new Date(Date.now() - 2400000), read: false },
-      ]
-    },
-    {
-      contactName: "Jane Smith",
-      messages: [
-        { isSender: false, content: 'Hello, do you ship internationally?', timestamp: new Date(Date.now() - 86400000) },
-        { isSender: true, content: 'Yes, but there\'s an additional fee.', timestamp: new Date(Date.now() - 82800000) },
-      ]
-    },
-    {
-      contactName: "New Contact",
-      messages: []
-    }
-  ];
-}
-
-function mockUsers(): User[] {
-  return [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-    { id: 3, name: 'New Contact', email: 'new@example.com' }
-  ];
 }
 </script>
 

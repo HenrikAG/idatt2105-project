@@ -104,7 +104,7 @@ export default {
           createMessage.value = '';
         }, 3000);
         
-      } catch (error) {
+      } catch (error : any) {
         console.error('Error creating category:', error);
         // Error message
         createMessage.value = error.response?.data?.message || 
@@ -139,7 +139,7 @@ export default {
           deleteMessage.value = '';
         }, 3000);
         
-      } catch (error) {
+      } catch (error : any) {
         console.error('Error deleting category:', error);
         // Error message
         deleteMessage.value = error.response?.data?.message || 
