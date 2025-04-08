@@ -11,41 +11,41 @@
     <!-- Chat window -->
     <div v-if="isOpen" class="chat-window">
       <div class="chat-header">
-        <h3>{{ currentContact ? getUserName(currentContact.contactId) : 'Contacts' }}</h3>
+        <h3>{{ currentChat ? getUserName(currentChat.contactName) : 'Contacts' }}</h3>
         <button class="close-button" @click="toggleChat" aria-label="Close chat">×</button>
       </div>
       
       <!-- Contacts list view -->
-      <div v-if="!currentContact" class="chat-contacts-container">
+      <div v-if="!currentChat" class="chat-contacts-container">
         <div v-if="isLoading" class="loading-state">
           <div class="loading-spinner"></div>
           <p>Loading your conversations...</p>
         </div>
         
-        <div v-else-if="contacts.length === 0" class="empty-state">
+        <div v-else-if="chats.length === 0" class="empty-state">
           <p>No conversations yet</p>
         </div>
         
         <div v-else class="contacts-list">
           <div 
-            v-for="contact in contacts" 
-            :key="contact.contactId"
+            v-for="chat in chats" 
+            :key="chat.contactName"
             class="contact-item"
-            @click="selectContact(contact)"
+            @click="selectChat(chat)"
           >
             <div class="contact-avatar">
-              {{ getInitials(getUserName(contact.contactId)) }}
+              {{ getInitials(getUserName(chat.contactName)) }}
             </div>
             <div class="contact-info">
-              <div class="contact-name">{{ getUserName(contact.contactId) }}</div>
-              <div class="contact-preview">{{ getLastMessagePreview(contact) }}</div>
+              <div class="contact-name">{{ getUserName(chat.contactName) }}</div>
+              <div class="contact-preview">{{ getLastMessagePreview(chat) }}</div>
             </div>
             <div 
-              v-if="getUnreadCount(contact)" 
+              v-if="getUnreadCount(chat)" 
               class="unread-badge"
               aria-label="Unread message count"
             >
-              {{ getUnreadCount(contact) }}
+              {{ getUnreadCount(chat) }}
             </div>
           </div>
         </div>
@@ -54,13 +54,13 @@
       <!-- Chat conversation view -->
       <div v-else class="chat-content">
         <div class="chat-messages" ref="messagesContainer">
-          <div v-if="currentContact.messages.length === 0" class="empty-chat-state">
+          <div v-if="currentChat.messages.length === 0" class="empty-chat-state">
             <p>No messages yet. Start the conversation!</p>
           </div>
           
           <template v-else>
             <div 
-              v-for="(message, index) in currentContact.messages" 
+              v-for="(message, index) in currentChat.messages" 
               :key="index"
               :class="['message', message.isSender ? 'user-message' : 'contact-message']"
             >
@@ -73,7 +73,7 @@
         <div class="chat-input">
           <button 
             class="back-button" 
-            @click="goBackToContacts" 
+            @click="goBackToChats" 
             aria-label="Back to contacts"
           >
             ←
@@ -102,19 +102,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import axios from 'axios';
-
-// Using the provided interfaces
-interface Message {
-  isSender: boolean;
-  content: string;
-  timestamp: Date;
-  read?: boolean; // Optional property to track read status
-}
-
-interface Contact {
-  contactId: number;
-  messages: Message[];
-}
+import type { Chat } from '@/types/Chat';
+import type { Message } from '@/types/Message';
 
 interface User {
   id: number;
@@ -125,8 +114,8 @@ interface User {
 
 // State management
 const isOpen = ref(false);
-const currentContact = ref<Contact | null>(null);
-const contacts = ref<Contact[]>([]);
+const currentChat = ref<Chat | null>(null);
+const chats = ref<Chat[]>([]);
 const users = ref<User[]>([]);
 const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
@@ -135,7 +124,7 @@ const currentUserId = ref(1); // Would come from auth system in real app
 const isLoading = ref(false);
 const isSending = ref(false);
 const error = ref<string | null>(null);
-const unreadCounts = ref<Record<number, number>>({});
+const unreadCounts = ref<Record<string, number>>({});
 
 // Computed values
 const unreadCount = computed(() => 
@@ -144,16 +133,16 @@ const unreadCount = computed(() =>
 
 // Lifecycle hooks
 onMounted(async () => {
-  await fetchContacts();
+  await fetchChats();
 });
 
 // Watch for changes to trigger UI updates
-watch(() => currentContact.value?.messages.length, () => {
+watch(() => currentChat.value?.messages.length, () => {
   scrollToBottom();
 });
 
 watch(() => isOpen.value, (newValue) => {
-  if (newValue && currentContact.value) {
+  if (newValue && currentChat.value) {
     nextTick(() => {
       if (messageInput.value) messageInput.value.focus();
       scrollToBottom();
@@ -162,7 +151,7 @@ watch(() => isOpen.value, (newValue) => {
 });
 
 // Methods for API interactions
-async function fetchContacts() {
+async function fetchChats() {
   isLoading.value = true;
   error.value = null;
   
@@ -175,12 +164,12 @@ async function fetchContacts() {
     // Mock data for development
     if (!chatData || !chatData.length) {
       // Fallback to mock data
-      contacts.value = mockContacts();
+      chats.value = mockChats();
       users.value = mockUsers();
     } else {
       // Transform API response to match our interfaces
-      contacts.value = chatData.map((chat: any) => ({
-        contactId: chat.otherUserId,
+      chats.value = chatData.map((chat: any) => ({
+        contactName: chat.otherUserName,
         messages: chat.messages.map((msg: any) => ({
           isSender: msg.senderId === currentUserId.value,
           content: msg.content,
@@ -189,10 +178,10 @@ async function fetchContacts() {
         }))
       }));
       
-      // Fetch user data for contacts
-      const contactIds = contacts.value.map(c => c.contactId);
+      // Fetch user data for chats
+      const contactNames = chats.value.map(c => c.contactName);
       const { data: userData } = await axios.get(`/api/users`, {
-        params: { ids: contactIds.join(',') }
+        params: { names: contactNames.join(',') }
       });
       
       users.value = userData || mockUsers();
@@ -201,11 +190,11 @@ async function fetchContacts() {
     // Calculate unread counts
     calculateUnreadCounts();
   } catch (err) {
-    console.error('Failed to fetch contacts:', err);
-    error.value = 'Failed to load contacts';
+    console.error('Failed to fetch chats:', err);
+    error.value = 'Failed to load chats';
     
     // Fallback to mock data in development
-    contacts.value = mockContacts();
+    chats.value = mockChats();
     users.value = mockUsers();
     calculateUnreadCounts();
   } finally {
@@ -214,17 +203,16 @@ async function fetchContacts() {
 }
 
 async function sendMessage() {
-  if (!currentContact.value || !newMessage.value.trim() || isSending.value) return;
+  if (!currentChat.value || !newMessage.value.trim() || isSending.value) return;
   
   const message: Message = {
     isSender: true,
     content: newMessage.value.trim(),
-    timestamp: new Date(),
-    read: true
+    timestamp: new Date()
   };
   
   // Optimistic UI update
-  currentContact.value.messages.push(message);
+  currentChat.value.messages.push(message);
   const tempMessage = newMessage.value;
   newMessage.value = '';
   
@@ -235,13 +223,12 @@ async function sendMessage() {
   try {
     await axios.post('/api/messages', {
       senderId: currentUserId.value,
-      receiverId: currentContact.value.contactId,
+      receiverName: currentChat.value.contactName,
       content: tempMessage,
       timestamp: message.timestamp.toISOString()
     });
   } catch (err) {
     console.error('Failed to send message:', err);
-    // Could show an error state on the message or retry option
   } finally {
     isSending.value = false;
     if (messageInput.value) messageInput.value.focus();
@@ -253,12 +240,12 @@ function toggleChat() {
   isOpen.value = !isOpen.value;
 }
 
-function selectContact(contact: Contact) {
-  currentContact.value = contact;
+function selectChat(chat: Chat) {
+  currentChat.value = chat;
   
   // Mark messages as read
-  if (contact.messages.length > 0) {
-    contact.messages.forEach(msg => {
+  if (chat.messages.length > 0) {
+    chat.messages.forEach(msg => {
       if (!msg.isSender) msg.read = true;
     });
     
@@ -272,8 +259,8 @@ function selectContact(contact: Contact) {
   });
 }
 
-function goBackToContacts() {
-  currentContact.value = null;
+function goBackToChats() {
+  currentChat.value = null;
 }
 
 function scrollToBottom() {
@@ -291,9 +278,9 @@ function formatTime(date: Date | string): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function getUserName(userId: number): string {
-  const user = users.value.find(u => u.id === userId);
-  return user ? user.name : `User ${userId}`;
+function getUserName(contactName: string): string {
+  const user = users.value.find(u => u.name === contactName);
+  return user ? user.name : contactName;
 }
 
 function getInitials(name: string): string {
@@ -305,10 +292,10 @@ function getInitials(name: string): string {
     .substring(0, 2);
 }
 
-function getLastMessagePreview(contact: Contact): string {
-  if (contact.messages.length === 0) return 'No messages yet';
+function getLastMessagePreview(chat: Chat): string {
+  if (chat.messages.length === 0) return 'No messages yet';
   
-  const lastMessage = contact.messages[contact.messages.length - 1];
+  const lastMessage = chat.messages[chat.messages.length - 1];
   const prefix = lastMessage.isSender ? 'You: ' : '';
   const content = lastMessage.content.length > 20
     ? lastMessage.content.substring(0, 20) + '...'
@@ -317,17 +304,17 @@ function getLastMessagePreview(contact: Contact): string {
   return prefix + content;
 }
 
-function getUnreadCount(contact: Contact): number {
-  return unreadCounts.value[contact.contactId] || 0;
+function getUnreadCount(chat: Chat): number {
+  return unreadCounts.value[chat.contactName] || 0;
 }
 
 function calculateUnreadCounts() {
-  const counts: Record<number, number> = {};
+  const counts: Record<string, number> = {};
   
-  contacts.value.forEach(contact => {
-    const unreadMessages = contact.messages.filter(msg => !msg.isSender && !msg.read);
+  chats.value.forEach(chat => {
+    const unreadMessages = chat.messages.filter(msg => !msg.isSender && !msg.read);
     if (unreadMessages.length > 0) {
-      counts[contact.contactId] = unreadMessages.length;
+      counts[chat.contactName] = unreadMessages.length;
     }
   });
   
@@ -335,10 +322,10 @@ function calculateUnreadCounts() {
 }
 
 // Mock data for development
-function mockContacts(): Contact[] {
+function mockChats(): Chat[] {
   return [
     {
-      contactId: 2,
+      contactName: "John Doe",
       messages: [
         { isSender: false, content: 'Hi, is this item still available?', timestamp: new Date(Date.now() - 3600000) },
         { isSender: true, content: 'Yes, it is!', timestamp: new Date(Date.now() - 3000000) },
@@ -346,14 +333,14 @@ function mockContacts(): Contact[] {
       ]
     },
     {
-      contactId: 3,
+      contactName: "Jane Smith",
       messages: [
         { isSender: false, content: 'Hello, do you ship internationally?', timestamp: new Date(Date.now() - 86400000) },
         { isSender: true, content: 'Yes, but there\'s an additional fee.', timestamp: new Date(Date.now() - 82800000) },
       ]
     },
     {
-      contactId: 4,
+      contactName: "New Contact",
       messages: []
     }
   ];
@@ -361,9 +348,9 @@ function mockContacts(): Contact[] {
 
 function mockUsers(): User[] {
   return [
-    { id: 2, name: 'John Doe', email: 'john@example.com' },
-    { id: 3, name: 'Jane Smith', email: 'jane@example.com' },
-    { id: 4, name: 'New Contact', email: 'new@example.com' }
+    { id: 1, name: 'John Doe', email: 'john@example.com' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
+    { id: 3, name: 'New Contact', email: 'new@example.com' }
   ];
 }
 </script>

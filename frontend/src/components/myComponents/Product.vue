@@ -4,7 +4,7 @@
     <!-- The card expands to show more details when clicked -->
     <div class="product-card" :class="{ expanded: isExpanded }" @click="toggleExpand">
       <div class="product-preview">
-        <img v-if="product.imageUrl" :src="product.imageUrl" alt="Product image" class="product-image">
+        <img v-if="product.image_url" :src="product.image_url" alt="Product image" class="product-image">
         <div v-else class="product-image placeholder-image"></div>
         <div class="preview-details">
           <h3>{{ product.item_name }}</h3>
@@ -27,7 +27,7 @@
           <p class="user">Email: {{ userData.email }}</p>
           <!--p v-if="user.phoneNumber" class="user">Phone: {{ user.phoneNumber }}</p>-->
           <!--p v-if="user.address" class="user">Address: {{ user.address }}</p>-->
-          <!--img v-if="user.imageUrl" :src="user.imageUrl" alt="User profile picture" class="user-image">-->
+          <!--img v-if="user.image_url" :src="user.image_url" alt="User profile picture" class="user-image">-->
           <button id="contact-seller" @click="executeContactSeller(userData.id)">Contact Seller</button>
         </div>
       </div>

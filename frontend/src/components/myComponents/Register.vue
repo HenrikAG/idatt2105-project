@@ -103,7 +103,7 @@ export default {
             this.isSubmitting = true;
             
             try {
-                const response = await axios.post('/api/user/register', {
+                const response = await axios.post('http://localhost:8080/api/user/register', {
                     username: this.username,
                     password: this.password,
                 });
@@ -111,6 +111,7 @@ export default {
                 console.log('Registration successful:', response.data);
                 this.registrationSuccess = true;
                 
+
             } catch (error) {
                 console.error('Error during registration:', error);
                 

@@ -9,12 +9,12 @@
         
         <form @submit.prevent="handleLogin">
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" v-model="username" required :disabled="isSubmitting" />
+                <label for="username-login">Username:</label>
+                <input type="text" id="username-login" v-model="username" required :disabled="isSubmitting" />
             </div>
             <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" v-model="password" required :disabled="isSubmitting" />
+                <label for="password-login">Password:</label>
+                <input type="password" id="password-login" v-model="password" required :disabled="isSubmitting" />
             </div>
             <button type="submit" :disabled="isSubmitting">
                 {{ isSubmitting ? 'Logging in...' : 'Login' }}
@@ -25,6 +25,7 @@
 
 <script>
 import axios from "axios";
+import { useUserStore } from "@/components/store/userstore.ts";
 export default {
     name: "Login",
     data() {
@@ -32,7 +33,8 @@ export default {
             username: "",
             password: "",
             errorMessage: "",
-            isSubmitting: false
+            isSubmitting: false,
+            userStore: useUserStore()
         };
     },
     methods: {
@@ -54,11 +56,8 @@ export default {
             .then((response) => {
                 console.log("Login successful:", response.data);
                 // Handle successful login (e.g., redirect to homepage)
+                this.userStore.saveUser(response.data);
                 this.$router.push("/");
-
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("username", this.username);
-                localStorage.setItem("role", response.data.role);
 
             })
             .catch((error) => {
