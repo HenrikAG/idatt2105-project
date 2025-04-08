@@ -2,6 +2,8 @@ package ntnu.idatt2105.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ntnu.idatt2105.backend.model.Item;
+
 /**
  * Data Transfer Object (DTO) for items.
  */
@@ -28,6 +30,19 @@ public class ItemDTO {
         this.description = description;
         this.categoryName = categoryName;
         this.imageName = imageName;
+    }
+
+    /**
+     * Constructs an itemDTO using an item.
+     * 
+     * @param item the item to wrap as an ItemDTO
+     */
+    public ItemDTO(Item item) {
+        this.name = item.getName();
+        this.price = item.getPrice();
+        this.description = item.getDescription();
+        this.categoryName = item.getCategory().getName();
+        this.imageName = item.getImageName();
     }
 
     /**

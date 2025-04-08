@@ -130,4 +130,13 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    /**
+     * Returns the users favorite categories.
+     * 
+     * @return A set containing the user's favorite categories
+     */
+    public Set<Category> getFavoriteCategories() {
+        return favoriteCategories;
+    }
 }

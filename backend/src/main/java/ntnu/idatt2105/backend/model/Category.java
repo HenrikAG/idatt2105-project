@@ -55,4 +55,13 @@ public class Category {
     public String getName() {
         return name;
     }
+
+    /**
+     * Returns the items in the category.
+     * 
+     * @return the items in the category
+     */
+    public Set<Item> getItems() {
+        return items;
+    }
 }
