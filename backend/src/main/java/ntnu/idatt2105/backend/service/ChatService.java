@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ntnu.idatt2105.backend.dto.ChatDTO;
+import ntnu.idatt2105.backend.dto.ChatRequest;
 import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.Chat;
 import ntnu.idatt2105.backend.model.User;
@@ -39,15 +40,17 @@ public class ChatService {
     /**
      * Creates and saves a new chat if no chat with the specified users already exists. Can be used to get a already existing chat between two users.
      * 
-     * @param user1Username username of one of the users
-     * @param user2Username username of one of the users
+     * @param request DTO containing the usernames of the participants of the chat
      * @return ChatDTO containing chat info
      * @throws IllegalArgumentException if the two usernames are the same
      * @throws NotFoundException if there is no registered user with one of or both of the usernames
      */
-    public ChatDTO createChat(String user1Username, String user2Username) {
+    public ChatDTO createChat(ChatRequest request) {
+        String user1Username = request.getUser1Username();
+        String user2Username = request.getUser2Username();
+
         if (user1Username.equals(user2Username)) {
-            throw new IllegalArgumentException("The users in a chat must be different");
+            throw new IllegalArgumentException("The users in a chat cannot be the same");
         }
 
         User user1 = userRepository.findByUsername(user1Username).orElseThrow(() -> new NotFoundException("User with username: " + user1Username + " not found"));
@@ -80,5 +83,28 @@ public class ChatService {
         return chatRepository.findByUser(user).stream()
             .map(ChatDTO::new)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns an existing chat.
+     * 
+     * @param request request DTO with usernames of the users in the chat
+     * @return ChatDTO containing chat info
+     * @throws IllegalArgumentException if the two users are the same
+     * @throws NotFoundException if one of the users or the chat is not registered
+     */
+    public ChatDTO getChat(ChatRequest request) {
+        String user1Username = request.getUser1Username();
+        String user2Username = request.getUser2Username();
+
+        if (user1Username.equals(user2Username)) {
+            throw new IllegalArgumentException("The users in a chat cannot be the same");
+        }
+
+        User user1 = userRepository.findByUsername(user1Username).orElseThrow(() -> new NotFoundException("User with username: " + user1Username + " not found"));
+        User user2 = userRepository.findByUsername(user2Username).orElseThrow(() -> new NotFoundException("User with username: " + user2Username + " not found"));
+
+        Chat chat = chatRepository.findByUsers(user1, user2).orElseThrow(() -> new NotFoundException("Chat not found"));
+        return new ChatDTO(chat);
     }
 }
