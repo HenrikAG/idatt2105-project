@@ -54,6 +54,16 @@ public class ItemController {
     }
 
     /**
+     * Returns all registered items mapped to itemDTOs.
+     * 
+     * @return ReponseEntity with List containing all items as itemDTOs
+     */
+    public ResponseEntity<List<ItemDTO>> getAllItems() {
+        List<ItemDTO> items = itemService.getAllItems();
+        return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+
+    /**
      * Registers a new item in the database if the item is valid.
      * 
      * @param itemRequest the item to be registered as an ItemDTO object
