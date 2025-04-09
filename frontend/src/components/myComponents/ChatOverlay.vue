@@ -1,21 +1,18 @@
 <template>
   <div class="chat-overlay">
-    <!-- Chat toggle button - always visible -->
+    <!-- Chat toggle button -->
     <button class="chat-button" @click="toggleChat" aria-label="Toggle chat">
       <span class="chat-button-text">{{ isOpen ? 'Close' : 'Chat' }}</span>
-      <span v-if="unreadCount > 0" class="notification-badge" aria-label="Unread messages">
-        {{ unreadCount }}
-      </span>
     </button>
     
-    <!-- Chat window -->
+    <!-- Chat window (conditionally rendered) -->
     <div v-if="isOpen" class="chat-window">
       <div class="chat-header">
         <h3>{{ currentChat ? getUserName(currentChat.contactName) : 'Contacts' }}</h3>
         <button class="close-button" @click="toggleChat" aria-label="Close chat">×</button>
       </div>
       
-      <!-- Contacts list view -->
+      <!-- Contacts list view (shown when no chat is selected) -->
       <div v-if="!currentChat" class="chat-contacts-container">
         <div v-if="isLoading" class="loading-state">
           <div class="loading-spinner"></div>
@@ -40,18 +37,11 @@
               <div class="contact-name">{{ getUserName(chat.contactName) }}</div>
               <div class="contact-preview">{{ getLastMessagePreview(chat) }}</div>
             </div>
-            <div 
-              v-if="getUnreadCount(chat)" 
-              class="unread-badge"
-              aria-label="Unread message count"
-            >
-              {{ getUnreadCount(chat) }}
-            </div>
           </div>
         </div>
       </div>
       
-      <!-- Chat conversation view -->
+      <!-- Chat conversation view (shown when a chat is selected) -->
       <div v-else class="chat-content">
         <div class="chat-messages" ref="messagesContainer">
           <div v-if="currentChat.messages.length === 0" class="empty-chat-state">
@@ -90,6 +80,7 @@
             @click="sendMessage" 
             :disabled="!newMessage.trim() || isSending"
             class="send-button"
+            aria-label="Send message"
           >
             {{ isSending ? '...' : 'Send' }}
           </button>
@@ -104,6 +95,8 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import axios from 'axios';
 import type { Chat } from '@/types/Chat';
 import type { Message } from '@/types/Message';
+import { useUserStore } from '@/components/store/userstore.ts';
+import { useChatStore } from '@/components/store/chatstore.ts';
 
 interface User {
   id: number;
@@ -113,23 +106,21 @@ interface User {
 }
 
 // State management
-const isOpen = ref(false);
+const isOpen = computed(() => chatStore.isOpen);
+const storeActiveContact = computed(() => chatStore.activeContact);
+const productContext = computed(() => chatStore.productContext);
 const currentChat = ref<Chat | null>(null);
 const chats = ref<Chat[]>([]);
 const users = ref<User[]>([]);
 const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const messageInput = ref<HTMLInputElement | null>(null);
-const currentUserId = ref(1); // Would come from auth system in real app
+const userStore = useUserStore();
+const chatStore = useChatStore();
+const currentUsername = computed(() => userStore.username);
 const isLoading = ref(false);
 const isSending = ref(false);
 const error = ref<string | null>(null);
-const unreadCounts = ref<Record<string, number>>({});
-
-// Computed values
-const unreadCount = computed(() => 
-  Object.values(unreadCounts.value).reduce((total, count) => total + count, 0)
-);
 
 // Lifecycle hooks
 onMounted(async () => {
@@ -149,6 +140,35 @@ watch(() => isOpen.value, (newValue) => {
   }
 });
 
+watch(storeActiveContact, (newContact) => {
+  if (newContact) {
+    // Find or create a chat with this contact
+    let foundChat = chats.value.find(chat => chat.contactName === newContact);
+    
+    if (!foundChat) {
+      // Create a new chat
+      foundChat = {
+        contactName: newContact,
+        messages: []
+      };
+      chats.value.push(foundChat);
+    }
+    
+    // Select this chat
+    selectChat(foundChat);
+    
+    // If there's product context, send an initial message about the product
+    if (productContext.value) {
+      const initialMessage = `Hi, I'm interested in your "${productContext.value.name}" priced at $${productContext.value.price}. Is it still available?`;
+      newMessage.value = initialMessage;
+      nextTick(() => {
+        sendMessage();
+        chatStore.clearProductContext(); // Clear after sending
+      });
+    }
+  }
+}, { immediate: true });
+
 // Methods for API interactions
 async function fetchChats() {
   isLoading.value = true;
@@ -156,16 +176,15 @@ async function fetchChats() {
   
   try {
     const { data: chatData } = await axios.get(`/api/chats`, {
-      params: { userId: currentUserId.value }
+      params: { username: currentUsername.value }
     });
 
     chats.value = chatData.map((chat: any) => ({
       contactName: chat.otherUserName,
       messages: chat.messages.map((msg: any) => ({
-        isSender: msg.senderId === currentUserId.value,
+        isSender: msg.senderId === currentUsername.value,
         content: msg.content,
-        timestamp: new Date(msg.timestamp),
-        read: msg.read || false
+        timestamp: new Date(msg.timestamp)
       }))
     }));
 
@@ -175,7 +194,6 @@ async function fetchChats() {
     });
 
     users.value = userData;
-    calculateUnreadCounts();
   } catch (err) {
     console.error('Failed to fetch chats:', err);
     error.value = 'Failed to load chats';
@@ -202,7 +220,7 @@ async function sendMessage() {
   isSending.value = true;
   try {
     await axios.post('/api/messages', {
-      senderId: currentUserId.value,
+      senderId: currentUsername.value,
       receiverName: currentChat.value.contactName,
       content: tempMessage,
       timestamp: message.timestamp.toISOString()
@@ -217,20 +235,16 @@ async function sendMessage() {
 
 // UI Helper functions
 function toggleChat() {
-  isOpen.value = !isOpen.value;
+  if (isOpen.value) {
+    chatStore.closeChat();
+  } else {
+    chatStore.openChat('');
+  }
 }
 
 function selectChat(chat: Chat) {
   currentChat.value = chat;
-
-  if (chat.messages.length > 0) {
-    chat.messages.forEach(msg => {
-      if (!msg.isSender) msg.read = true;
-    });
-
-    calculateUnreadCounts();
-  }
-
+  
   nextTick(() => {
     scrollToBottom();
     if (messageInput.value) messageInput.value.focus();
@@ -281,23 +295,6 @@ function getLastMessagePreview(chat: Chat): string {
     
   return prefix + content;
 }
-
-function getUnreadCount(chat: Chat): number {
-  return unreadCounts.value[chat.contactName] || 0;
-}
-
-function calculateUnreadCounts() {
-  const counts: Record<string, number> = {};
-  
-  chats.value.forEach(chat => {
-    const unreadMessages = chat.messages.filter(msg => !msg.isSender && !msg.read);
-    if (unreadMessages.length > 0) {
-      counts[chat.contactName] = unreadMessages.length;
-    }
-  });
-  
-  unreadCounts.value = counts;
-}
 </script>
 
 <style scoped>
@@ -326,21 +323,6 @@ function calculateUnreadCounts() {
 
 .chat-button:hover {
   background-color: #0077e6;
-}
-
-.notification-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: #ff4d4d;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .chat-window {
@@ -472,20 +454,6 @@ function calculateUnreadCounts() {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.unread-badge {
-  background-color: #ff4d4d;
-  color: white;
-  border-radius: 50%;
-  min-width: 18px;
-  height: 18px;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
-  margin-left: 8px;
 }
 
 /* Chat content */

@@ -8,7 +8,7 @@ pinia.use(piniaPluginPersistedstate);
 
 export const useUserStore = defineStore('token', {
     state: () => ({
-        user: '',
+        username: '',
         token: '',
         role: '',
     }),
@@ -21,11 +21,11 @@ export const useUserStore = defineStore('token', {
         saveUser(userData: any) {
             this.token = userData.token;
             const decodedToken: any = jwtDecode(userData.token);
-            this.user = decodedToken.sub;
+            this.username = decodedToken.sub;
             this.role = decodedToken.role;
 
             console.log('Decoded token:', decodedToken);
-            console.log('User ID:', this.user);
+            console.log('User ID:', this.username);
             console.log('User role:', this.role);
         }
     }
