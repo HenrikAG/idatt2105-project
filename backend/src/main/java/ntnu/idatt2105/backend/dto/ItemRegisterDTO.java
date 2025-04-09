@@ -23,7 +23,7 @@ public class ItemRegisterDTO {
      * @param categoryName the name of the category of the item
      * @param imageUrl the url of the image of the item
      */
-    public ItemRegisterDTO(@JsonProperty("username") String username, @JsonProperty("item_name") String name,
+    public ItemRegisterDTO(@JsonProperty("seller_name") String username, @JsonProperty("item_name") String name,
     @JsonProperty("price") double price, @JsonProperty("description") String description,
     @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageUrl) {
         this.username = username;
