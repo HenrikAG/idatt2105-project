@@ -1,6 +1,5 @@
 package ntnu.idatt2105.backend.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
