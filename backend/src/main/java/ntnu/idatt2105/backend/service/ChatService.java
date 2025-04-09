@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import ntnu.idatt2105.backend.dto.ChatDTO;
 import ntnu.idatt2105.backend.exception.NotFoundException;
@@ -17,6 +18,7 @@ import ntnu.idatt2105.backend.repository.UserRepository;
 /**
  * Service class for chats.
  */
+@Service
 public class ChatService {
     
     private final ChatRepository chatRepository;
@@ -70,6 +72,7 @@ public class ChatService {
      * 
      * @param username the username of the user
      * @return List of ChatDTOs containing chat info
+     * @throws NotFoundException if no user with the specified username is registered
      */
     public List<ChatDTO> getUserChats(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User with username: " + username + " not found"));

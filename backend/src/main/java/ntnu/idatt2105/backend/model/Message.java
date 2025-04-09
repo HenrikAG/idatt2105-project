@@ -109,7 +109,16 @@ public class Message {
      * 
      * @return the time of the message being sent
      */
-    public LocalDateTime getTimeStamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    /**
+     * Sets the value the message was sent.
+     * 
+     * @param timeStamp the time the message was sent
+     */
+    public void setTimestamp(LocalDateTime timeStamp) {
+        this.timestamp = timeStamp;
     }
 }
