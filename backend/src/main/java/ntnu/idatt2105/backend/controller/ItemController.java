@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
-import ntnu.idatt2105.backend.dto.ItemRequestDTO;
 import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.Item;
 import ntnu.idatt2105.backend.service.ItemService;
@@ -26,7 +26,6 @@ import ntnu.idatt2105.backend.service.ItemService;
 /**
  * Handles HTTP requests related to items.
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/items")
 public class ItemController {
@@ -48,7 +47,7 @@ public class ItemController {
     @GetMapping("/{categoryName}")
     public ResponseEntity<?> getItemsByCategory(@PathVariable String categoryName) {
         try {
-            List<ItemRequestDTO> categoryItems = itemService.getItemsByCategoryName(categoryName);
+            List<ItemDTO> categoryItems = itemService.getItemsByCategoryName(categoryName);
             return new ResponseEntity<>(categoryItems, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -84,6 +83,8 @@ public class ItemController {
         }
     }
 
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteItem(@PathVariable Long id) {
         logger.info("User is trying to delete item with id: " + id);
 
