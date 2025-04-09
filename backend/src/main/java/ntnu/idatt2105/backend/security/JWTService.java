@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +19,14 @@ public class JWTService {
     private static final Logger logger = LoggerFactory.getLogger(JWTService.class);
 
     private final static Duration JWT_TOKEN_VALIDITY = Duration.ofMinutes(40);
-    public final static String tempKey = "my-secret-key"; //TODO ikke ha direkte i koden.
+    
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     public String generateToken(Authentication authentication) {
         Instant now = Instant.now();
         Instant expiry = now.plusMillis(JWT_TOKEN_VALIDITY.toMillis());
-        Algorithm hmac512 = Algorithm.HMAC512(tempKey);
+        Algorithm hmac512 = Algorithm.HMAC512(jwtSecret);
 
         String role = authentication.getAuthorities().stream()
             .findFirst()
@@ -43,7 +46,7 @@ public class JWTService {
 
     public String validateTokenAndGetUserName(String token) {
                 try {
-            final Algorithm hmac512 = Algorithm.HMAC512(tempKey);;
+            final Algorithm hmac512 = Algorithm.HMAC512(jwtSecret);;
             final JWTVerifier verifier = JWT.require(hmac512)
                 .build();
             return verifier.verify(token).getSubject();
