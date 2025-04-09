@@ -6,5 +6,5 @@ export interface Product {
     image_url?: string;
     category: string;
     location?: string;
-    username: string;
+    seller_name: string;
   }

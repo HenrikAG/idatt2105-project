@@ -8,7 +8,7 @@
     <!-- Chat window (conditionally rendered) -->
     <div v-if="isOpen" class="chat-window">
       <div class="chat-header">
-        <h3>{{ currentChat ? getUserName(currentChat.contactName) : 'Contacts' }}</h3>
+        <h3>{{ currentChat ? getUserName(currentChat.otherUsername) : 'Contacts' }}</h3>
         <button class="close-button" @click="toggleChat" aria-label="Close chat">×</button>
       </div>
       
@@ -26,15 +26,15 @@
         <div v-else class="contacts-list">
           <div 
             v-for="chat in chats" 
-            :key="chat.contactName"
+            :key="chat.id"
             class="contact-item"
             @click="selectChat(chat)"
           >
             <div class="contact-avatar">
-              {{ getInitials(getUserName(chat.contactName)) }}
+              {{ getInitials(getUserName(chat.otherUsername)) }}
             </div>
             <div class="contact-info">
-              <div class="contact-name">{{ getUserName(chat.contactName) }}</div>
+              <div class="contact-name">{{ getUserName(chat.otherUsername) }}</div>
               <div class="contact-preview">{{ getLastMessagePreview(chat) }}</div>
             </div>
           </div>
@@ -51,7 +51,7 @@
           <template v-else>
             <div 
               v-for="(message, index) in currentChat.messages" 
-              :key="index"
+              :key="message.id || index"
               :class="['message', message.isSender ? 'user-message' : 'contact-message']"
             >
               <div class="message-content">{{ message.content }}</div>
@@ -98,6 +98,7 @@ import type { Message } from '@/types/Message';
 import { useUserStore } from '@/components/store/userstore.ts';
 import { useChatStore } from '@/components/store/chatstore.ts';
 
+// Types
 interface User {
   id: number;
   name: string;
@@ -106,27 +107,32 @@ interface User {
 }
 
 // State management
+const userStore = useUserStore();
+const chatStore = useChatStore();
 const isOpen = computed(() => chatStore.isOpen);
 const storeActiveContact = computed(() => chatStore.activeContact);
 const productContext = computed(() => chatStore.productContext);
+const currentUsername = computed(() => userStore.username);
+
+// UI state
 const currentChat = ref<Chat | null>(null);
 const chats = ref<Chat[]>([]);
 const users = ref<User[]>([]);
 const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const messageInput = ref<HTMLInputElement | null>(null);
-const userStore = useUserStore();
-const chatStore = useChatStore();
-const currentUsername = computed(() => userStore.username);
 const isLoading = ref(false);
 const isSending = ref(false);
 const error = ref<string | null>(null);
 
 // Lifecycle hooks
 onMounted(async () => {
-  await fetchChats();
+  if (currentUsername.value) {
+    await fetchChats();
+  }
 });
 
+// Watch for changes
 watch(() => currentChat.value?.messages.length, () => {
   scrollToBottom();
 });
@@ -140,60 +146,79 @@ watch(() => isOpen.value, (newValue) => {
   }
 });
 
-watch(storeActiveContact, (newContact) => {
-  if (newContact) {
-    // Find or create a chat with this contact
-    let foundChat = chats.value.find(chat => chat.contactName === newContact);
+// Watch for active contact changes from chat store
+watch(storeActiveContact, async (newContact) => {
+  if (newContact && currentUsername.value) {
+    // Find an existing chat with this contact
+    let foundChat = chats.value.find(chat => 
+      chat.user1Username === newContact || chat.user2Username === newContact
+    );
     
     if (!foundChat) {
-      // Create a new chat
-      foundChat = {
-        contactName: newContact,
-        messages: []
-      };
-      chats.value.push(foundChat);
+      try {
+        // Create a new chat through API
+        foundChat = await createChat(newContact);
+        chats.value.push(foundChat);
+      } catch (error) {
+        console.error('Failed to create chat:', error);
+        return;
+      }
     }
     
     // Select this chat
     selectChat(foundChat);
     
-    // If there's product context, send an initial message about the product
-    if (productContext.value) {
-      const initialMessage = `Hi, I'm interested in your "${productContext.value.name}" priced at $${productContext.value.price}. Is it still available?`;
+    // If there's product context AND forceSendMessage is true, send a message
+    // regardless of whether the chat is new or existing
+    if (productContext.value && chatStore.forceSendMessage) {
+      const initialMessage = `Hi, I'm interested in your "${productContext.value.name}" priced at $${productContext.price}. Is it still available?`;
       newMessage.value = initialMessage;
       nextTick(() => {
         sendMessage();
-        chatStore.clearProductContext(); // Clear after sending
+        chatStore.clearProductContext();
       });
     }
   }
 }, { immediate: true });
 
-// Methods for API interactions
+// API Methods
 async function fetchChats() {
+  if (!currentUsername.value || !userStore.token) return;
+  
   isLoading.value = true;
   error.value = null;
   
   try {
-    const { data: chatData } = await axios.get(`/api/chats`, {
-      params: { username: currentUsername.value }
+    const response = await axios.get(
+      `http://localhost:8080/api/chats/user/${currentUsername.value}`,
+      {
+        headers: { 'Authorization': `Bearer ${userStore.token}` }
+      }
+    );
+    
+    // Map API response to our chat format
+    chats.value = response.data.map((chatData: any) => {
+      const otherUsername = chatData.user1Username === currentUsername.value 
+        ? chatData.user2Username 
+        : chatData.user1Username;
+      
+      return {
+        id: chatData.id,
+        user1Username: chatData.user1Username,
+        user2Username: chatData.user2Username,
+        otherUsername, // Convenience property
+        messages: chatData.messages.map((msg: any) => ({
+          id: msg.id,
+          isSender: msg.senderUsername === currentUsername.value,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp)
+        }))
+      };
     });
-
-    chats.value = chatData.map((chat: any) => ({
-      contactName: chat.otherUserName,
-      messages: chat.messages.map((msg: any) => ({
-        isSender: msg.senderId === currentUsername.value,
-        content: msg.content,
-        timestamp: new Date(msg.timestamp)
-      }))
-    }));
-
-    const contactNames = chats.value.map(c => c.contactName);
-    const { data: userData } = await axios.get(`/api/users`, {
-      params: { names: contactNames.join(',') }
-    });
-
-    users.value = userData;
+    
+    // Fetch user data for contacts
+    await fetchUsers();
+    
   } catch (err) {
     console.error('Failed to fetch chats:', err);
     error.value = 'Failed to load chats';
@@ -202,34 +227,126 @@ async function fetchChats() {
   }
 }
 
-async function sendMessage() {
-  if (!currentChat.value || !newMessage.value.trim() || isSending.value) return;
+async function createChat(otherUsername: string): Promise<Chat> {
+  if (!currentUsername.value || !userStore.token) {
+    throw new Error('User not authenticated');
+  }
   
-  const message: Message = {
+  const response = await axios.post(
+    'http://localhost:8080/api/chats',
+    {
+      user1Username: currentUsername.value,
+      user2Username: otherUsername
+    },
+    {
+      headers: { 'Authorization': `Bearer ${userStore.token}` }
+    }
+  );
+  
+  const newChat = response.data;
+  
+  // Format for our application
+  return {
+    id: newChat.id,
+    user1Username: newChat.user1Username,
+    user2Username: newChat.user2Username,
+    otherUsername: newChat.user1Username === currentUsername.value 
+      ? newChat.user2Username 
+      : newChat.user1Username,
+    messages: [],
+    timeLastUpdated: new Date(newChat.timeLastUpdated)
+  };
+}
+
+async function sendMessage() {
+  if (!currentChat.value || !newMessage.value.trim() || isSending.value || !userStore.token) return;
+  
+  const messageContent = newMessage.value.trim();
+  newMessage.value = '';
+  
+  // Optimistically add message to UI
+  const message = {
+    id: Date.now(), // Temporary ID
     isSender: true,
-    content: newMessage.value.trim(),
+    content: messageContent,
     timestamp: new Date()
   };
   
-  currentChat.value.messages.push(message);
-  const tempMessage = newMessage.value;
-  newMessage.value = '';
+  if (currentChat.value.messages) {
+    currentChat.value.messages.push(message);
+  } else {
+    currentChat.value.messages = [message];
+  }
   
   scrollToBottom();
   
   isSending.value = true;
   try {
-    await axios.post('/api/messages', {
-      senderId: currentUsername.value,
-      receiverName: currentChat.value.contactName,
-      content: tempMessage,
-      timestamp: message.timestamp.toISOString()
-    });
+    const response = await axios.post(
+      'http://localhost:8080/api/messages',
+      {
+        chatId: currentChat.value.id,
+        senderUsername: currentUsername.value,
+        content: messageContent
+      },
+      {
+        headers: { 'Authorization': `Bearer ${userStore.token}` }
+      }
+    );
+    
+    // Update the temporary message with the actual ID from server
+    const realMessage = response.data;
+    const lastIndex = currentChat.value.messages.length - 1;
+    if (lastIndex >= 0) {
+      currentChat.value.messages[lastIndex].id = realMessage.id;
+    }
+    
   } catch (err) {
     console.error('Failed to send message:', err);
+    // You could remove the optimistic message here if it fails
   } finally {
     isSending.value = false;
     if (messageInput.value) messageInput.value.focus();
+  }
+}
+
+async function fetchUsers() {
+  if (!userStore.token) return;
+  
+  try {
+    // Get unique usernames from chats
+    const usernames = new Set<string>();
+    
+    chats.value.forEach(chat => {
+      if (chat.user1Username !== currentUsername.value) {
+        usernames.add(chat.user1Username);
+      }
+      if (chat.user2Username !== currentUsername.value) {
+        usernames.add(chat.user2Username);
+      }
+    });
+    
+    // Fetch each user's data
+    for (const username of usernames) {
+      // Skip if we already have this user's data
+      if (users.value.some(u => u.name === username)) continue;
+      
+      const response = await axios.get(
+        `http://localhost:8080/api/user/${username}`,
+        {
+          headers: { 'Authorization': `Bearer ${userStore.token}` }
+        }
+      );
+      
+      users.value.push({
+        id: response.data.id || 0,
+        name: response.data.username,
+        email: response.data.email,
+        image_url: response.data.imageUrl
+      });
+    }
+  } catch (err) {
+    console.error('Failed to fetch users:', err);
   }
 }
 
@@ -270,9 +387,9 @@ function formatTime(date: Date | string): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function getUserName(contactName: string): string {
-  const user = users.value.find(u => u.name === contactName);
-  return user ? user.name : contactName;
+function getUserName(username: string): string {
+  const user = users.value.find(u => u.name === username);
+  return user ? user.name : username;
 }
 
 function getInitials(name: string): string {
@@ -285,7 +402,7 @@ function getInitials(name: string): string {
 }
 
 function getLastMessagePreview(chat: Chat): string {
-  if (chat.messages.length === 0) return 'No messages yet';
+  if (!chat.messages || chat.messages.length === 0) return 'No messages yet';
   
   const lastMessage = chat.messages[chat.messages.length - 1];
   const prefix = lastMessage.isSender ? 'You: ' : '';

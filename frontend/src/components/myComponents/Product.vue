@@ -22,8 +22,14 @@
       
       <div class="user-details">
 
-        <p class="user">Seller: {{ product.username }}</p>
-        <button v-if="userStore.username !== product.username" id="contact-seller" @click="executeContactSeller(userData.name || props.product.username)">Contact Seller</button>
+        <p class="user">Seller: {{ product.seller_name }}</p>
+        <button 
+          v-if="userStore.username !== product.seller_name" 
+          id="contact-seller" 
+          @click="(event) => executeContactSeller(product.seller_name, event)"
+          >
+            Contact Seller
+        </button>
         <button 
           id="delete-product" 
           v-if="userStore.role === 'ADMIN'" 
@@ -65,16 +71,16 @@ const toggleExpand = () => {
 }
 
 
-const executeContactSeller = (username: string) => {
-  // Open chat with seller and include product context
-  chatStore.openChat(username, {
+const executeContactSeller = (username: string, event?: Event) => {
+  // Stop event propagation first
+  event?.stopPropagation();
+  
+  // Open chat with seller and force send a new product message
+  chatStore.openChatWithProduct(username, {
     id: props.product.item_id,
     name: props.product.item_name,
     price: props.product.price
   });
-  
-  // Prevent the card from toggling when clicking the button
-  event?.stopPropagation();
 }
 
 const executeDeleteProduct = (productId: number, event?: MouseEvent) => {

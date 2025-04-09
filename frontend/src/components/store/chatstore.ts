@@ -8,14 +8,23 @@ export const useChatStore = defineStore('chat', {
       id: number;
       name: string;
       price: number;
-    } | null
-  }),
+    } | null,
+    forceSendMessage: false
+    }),
   
   actions: {
-    openChat(contactName: string, productInfo?: { id: number; name: string; price: number }) {
+    openChat(contactName: string) {
       this.isOpen = true;
       this.activeContact = contactName;
-      this.productContext = productInfo || null;
+      this.productContext = null;
+      this.forceSendMessage = false;
+    },
+
+    openChatWithProduct(contactName: string, productInfo: { id: number; name: string; price: number }) {
+      this.isOpen = true;
+      this.activeContact = contactName;
+      this.productContext = productInfo;
+      this.forceSendMessage = true; // Set flag to force sending a message
     },
     
     closeChat() {
@@ -24,6 +33,7 @@ export const useChatStore = defineStore('chat', {
     
     clearProductContext() {
       this.productContext = null;
+      this.forceSendMessage = false;
     }
   }
 });
