@@ -1,21 +1,27 @@
 package ntnu.idatt2105.backend.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Data Transfer Object (DTO) used to register new users.
  */
 public class UserRegisterDTO {
     private final String username;
     private final String password;
+    private final List<String> favoriteCategories;
 
     /**
      * Constructs a UserRegisterDTO with the specified parameters.
      * 
      * @param username the username of the new user
      * @param password the password of the new user
+     * @param favoriteCategories the user's favorite categories
      */
-    public UserRegisterDTO(String username, String password) {
+    public UserRegisterDTO(String username, String password, List<String> favoriteCategories) {
         this.username = username;
         this.password = password;
+        this.favoriteCategories = favoriteCategories;
     }
 
     /**
@@ -34,5 +40,14 @@ public class UserRegisterDTO {
      */
     public String getPassword() {
         return password;
+    }
+
+    /**
+     * Returns a list of the names of the user's favorite categories.
+     * 
+     * @return the user's favorite categories
+     */
+    public List<String> getFavoriteCategories() {
+        return favoriteCategories;
     }
 }
