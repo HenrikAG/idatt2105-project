@@ -17,7 +17,6 @@ const isAdmin = computed(() => userstore.username && userstore.role === 'ADMIN')
       <RouterLink to="/search">Search</RouterLink> |
       <RouterLink v-if="!isLoggedIn" to="/login">Login</RouterLink>
       <RouterLink v-if="isLoggedIn" to="/my-user">{{ userstore.username }}</RouterLink>
-      <RouterLink v-if="isAdmin" to="/admin">   Admin</RouterLink>
     </nav>
   </header>
   <main>
