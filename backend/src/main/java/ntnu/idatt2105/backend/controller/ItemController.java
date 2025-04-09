@@ -83,7 +83,7 @@ public class ItemController {
     }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/item/{id}")
     public ResponseEntity<?> deleteItem(@PathVariable Long id) {
         logger.info("User is trying to delete item with id: " + id);
 
