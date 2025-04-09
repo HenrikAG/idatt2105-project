@@ -185,7 +185,7 @@
             category: newProduct.value.category,
             image_url: newProduct.value.image_url || null
           };
-          
+
           await axios.post('http://localhost:8080/api/items/post', productData, {
             headers: { 
               'Authorization': `Bearer ${userStore.token}`,

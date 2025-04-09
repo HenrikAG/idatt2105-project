@@ -1,4 +1,5 @@
 export interface Product {
+    id: PropertyKey | undefined;
     item_id: number;
     item_name: string;
     description: string;
