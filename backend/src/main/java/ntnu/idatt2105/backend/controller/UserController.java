@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.service.annotation.DeleteExchange;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.dto.LoginRequest;
@@ -103,6 +104,23 @@ public class UserController {
     }
 
     /**
+     * Returns all the items the user has listed.
+     * 
+     * @param username the username of the user
+     * @return A ResponseEntity with a list of all the user's posted items,
+     * or a message indicating the user was not found.
+     */
+    @GetMapping("/{username}/listed-items")
+    public ResponseEntity<?> getPosterItems(@PathVariable String username) {
+        try {
+            List<ItemDTO> itemDTOs = userService.getListedItems(username);
+            return new ResponseEntity<>(itemDTOs, HttpStatus.OK);
+        } catch (UsernameNotFoundException exception) {
+            return new ResponseEntity<>("User with username: " + username + " not found", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
      * Returns all registered users.
      * 
      * @return a ResponseEntity with a list of all of the registered users.
@@ -111,5 +129,21 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> userDTOs = userService.getAllUsers();
         return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+    }
+
+    /**
+     * Deletes a user with the specified username.
+     * 
+     * @param username the username of the user to be deleted
+     * @return ResponseEntity with the response of the request
+     */
+    @DeleteExchange(("/username"))
+    public ResponseEntity<?> deleteUser(@PathVariable String username) {
+        try {
+            userService.deleteUser(username);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (UsernameNotFoundException exception) {
+            return new ResponseEntity<>("User with username: " + username + " not found", HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -140,7 +140,21 @@ public class User {
         return favoriteCategories;
     }
 
+    /**
+     * Adds a new favorite category.
+     * 
+     * @param category the new favorite category
+     */
     public void addFavoriteCategory(Category category) {
         favoriteCategories.add(category);
+    }
+
+    /**
+     * Returns the user's listed items.
+     * 
+     * @return the user's listed items
+     */
+    public Set<Item> getListedItems() {
+        return listedItems;
     }
 }

@@ -92,6 +92,24 @@ public class UserService {
     }
 
     /**
+     * Gets a list containing the user's listed items mapped to ItemDTOs.
+     * 
+     * @param username the user's username
+     * @return the user's listed items mapped to ItemDTOs
+     * @throws UsernameNotFoundExcepiton if there is no user registered with the username
+     */
+    public List<ItemDTO> getListedItems(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not not found with username" + username));
+
+        List<ItemDTO> postedItems = user.getListedItems().stream()
+            .map(ItemDTO::new)
+            .collect(Collectors.toList());
+
+        return postedItems;
+    }
+
+    /**
      * Returns a list of all the registered users as UserDTOs.
      * 
      * @return a list of all registered users as UserDTOs
@@ -100,5 +118,17 @@ public class UserService {
         return userRepository.findAll().stream()
             .map(UserDTO::new)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Detetes the user with the specified username.
+     * 
+     * @param username the username of the user to be deleted
+     */
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not not found with username" + username));
+
+        userRepository.delete(user);
     }
 }
