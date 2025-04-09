@@ -1,12 +1,13 @@
 package ntnu.idatt2105.backend.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ntnu.idatt2105.backend.dto.CategoryDTO;
 import ntnu.idatt2105.backend.dto.CategoryRegisterDTO;
-import ntnu.idatt2105.backend.dto.CategoryResponseDTO;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
 import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.Category;
@@ -27,10 +28,12 @@ public class CategoryService {
     /**
      * Returns all existing categories.
      * 
-     * @return List of all existing categories.
+     * @return List of all existing categories as CategoryDTOs
      */
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryDTO> getAllCategories() {
+        return categoryRepository.findAll().stream()
+            .map(CategoryDTO::new)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -40,12 +43,12 @@ public class CategoryService {
      * @return DTO with info of the registered item
      * @throws AlreadyExistsException if a category with the same name already exists
      */
-    public CategoryResponseDTO addCategory(CategoryRegisterDTO categoryRegisterDTO) {
+    public CategoryDTO addCategory(CategoryRegisterDTO categoryRegisterDTO) {
         if (categoryExists(categoryRegisterDTO.getName())) {
             throw new AlreadyExistsException("Category already exists.");
         }
         Category newCategory = new Category(categoryRegisterDTO.getName());
-        return new CategoryResponseDTO(categoryRepository.save(newCategory));
+        return new CategoryDTO(categoryRepository.save(newCategory));
     }
 
     /**
