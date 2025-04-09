@@ -8,12 +8,13 @@ import ntnu.idatt2105.backend.model.Item;
  * Data Transfer Object (DTO) for items.
  */
 public class ItemDTO {
-    private long id;
-    private String name;
-    private double price;
-    private String description;
-    private String categoryName;
-    private String imageName;
+    private final long id;
+    private final String name;
+    private final double price;
+    private final String description;
+    private final String categoryName;
+    private final String imageName;
+    private final String sellerName;
 
     /**
      * Constructs an ItemDTO object.
@@ -24,15 +25,17 @@ public class ItemDTO {
      * @param description a description of the item
      * @param categoryName the name of the item's category
      * @param imageName the image URL of the image of the item
+     * @param sellerName the name of the user selling the item
      */
     public ItemDTO(@JsonProperty("item_id") long id, @JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
-     @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageName) {
+     @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageName, @JsonProperty("seller_name") String sellerName) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
         this.categoryName = categoryName;
         this.imageName = imageName;
+        this.sellerName = sellerName;
     }
 
     /**
@@ -47,6 +50,7 @@ public class ItemDTO {
         this.description = item.getDescription();
         this.categoryName = item.getCategory().getName();
         this.imageName = item.getImageName();
+        this.sellerName = item.getSeller().getUsername();
     }
 
     /**
@@ -107,5 +111,15 @@ public class ItemDTO {
     @JsonProperty("image_url")
     public String getImageName() {
         return imageName;
+    }
+
+    /**
+     * Returns the name of the seller of the item.
+     * 
+     * @return the username of the seller
+     */
+    @JsonProperty("seller_name")
+    public String getSellerName() {
+        return sellerName;
     }
 }
