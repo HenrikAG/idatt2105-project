@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
-import ntnu.idatt2105.backend.dto.ItemRequestDTO;
 import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.model.Item;
@@ -41,7 +40,7 @@ public class ItemService {
      * @return List of all items with the specified category. Returns empty list if no items with the specified category exists.
      * @throws IllegalArgumentException if there exists no category with the specified name
      */
-    public List<ItemRequestDTO> getItemsByCategoryName(String categoryName) {
+    public List<ItemDTO> getItemsByCategoryName(String categoryName) {
         Optional<Category> selectedCategory = categoryRepository.findByName(categoryName);
 
         if (selectedCategory.isEmpty()) {
@@ -49,9 +48,8 @@ public class ItemService {
         }
 
         List<Item> categoryItems = itemRepository.findByCategory(selectedCategory.get());
-        List<ItemRequestDTO> itemDTOs = categoryItems.stream()
-            .map(item -> new ItemRequestDTO(item.getId(), item.getName(), item.getPrice(), item.getDescription(),
-            item.getCategory().getName(), item.getImageName()))
+        List<ItemDTO> itemDTOs = categoryItems.stream()
+            .map(ItemDTO::new)
             .collect(Collectors.toList());
         return itemDTOs;
     }

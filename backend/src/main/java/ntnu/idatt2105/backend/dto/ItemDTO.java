@@ -18,12 +18,12 @@ public class ItemDTO {
     /**
      * Constructs an ItemDTO object.
      * 
-     * @param id
-     * @param name
-     * @param price
-     * @param description
-     * @param categoryName
-     * @param imageName
+     * @param id the id of the item
+     * @param name the name of the item
+     * @param price the price of the item
+     * @param description a description of the item
+     * @param categoryName the name of the item's category
+     * @param imageName the image URL of the image of the item
      */
     public ItemDTO(@JsonProperty("item_id") long id, @JsonProperty("item_name") String name, @JsonProperty("price") double price, @JsonProperty("description") String description,
      @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageName) {
@@ -38,7 +38,7 @@ public class ItemDTO {
     /**
      * Constructs an itemDTO using an item.
      * 
-     * @param item the item to wrap as an ItemDTO
+     * @param item the item to map as an ItemDTO
      */
     public ItemDTO(Item item) {
         this.id = item.getId();
