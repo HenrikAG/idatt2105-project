@@ -1,9 +1,9 @@
 <template>
-    <button class="cat_box" @click="$emit('select-category', category.name)">
-      <span v-if="category.emoji">{{ category.emoji }}</span>
-      <span v-else>{{ category.name }}</span>
-    </button>
-  </template>
+  <button class="cat_box" @click="$emit('select-category', category.name)">
+    <span v-if="category.emoji">{{ category.emoji }}</span>
+    <span v-else>{{ category.name }}</span>
+  </button>
+</template>
   
   <script>
   export default {
