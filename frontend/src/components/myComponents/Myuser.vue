@@ -105,6 +105,12 @@
             </div>
           </div>
           
+          <!-- Account Action -->
+          <div class="account-actions">
+            <h2>Account Actions</h2>
+            <button class="logout-button" @click="logout">Logout</button>
+          </div>
+
           <!-- Delete User Account -->
           <div class="danger-zone">
             <h2>Danger Zone</h2>
@@ -207,6 +213,12 @@
           isSubmitting.value = false;
         }
       };
+
+      // Logout user
+      const logout = () => {
+        userStore.clearUser();
+        router.push('/login');
+      };
       
       // Delete a product
       const deleteProduct = async (productId) => {
@@ -274,7 +286,9 @@
         newProduct,
         createProduct,
         deleteProduct,
-        confirmDeleteAccount
+        confirmDeleteAccount,
+        logout,
+        deleteAccount
       };
     }
   };
@@ -455,4 +469,31 @@
   .delete-account:hover {
     background-color: #d32f2f;
   }
+
+  .logout-button {
+  background-color: #2196F3;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 20px;
+  transition: background-color 0.2s ease;
+}
+
+.logout-button:hover {
+  background-color: #0b7dda;
+}
+
+/* Container for account actions */
+.account-actions {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
   </style>
