@@ -26,7 +26,6 @@ import ntnu.idatt2105.backend.service.ItemService;
 /**
  * Handles HTTP requests related to items.
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/items")
 public class ItemController {

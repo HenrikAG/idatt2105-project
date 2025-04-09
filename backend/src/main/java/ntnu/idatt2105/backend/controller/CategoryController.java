@@ -25,7 +25,6 @@ import ntnu.idatt2105.backend.service.CategoryService;
 /**
  * Handles HTTP requests related to categories.
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {

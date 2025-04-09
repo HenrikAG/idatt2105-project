@@ -31,7 +31,6 @@ import ntnu.idatt2105.backend.service.UserService;
 /**
  * Handles HTTP requests related to users.
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {

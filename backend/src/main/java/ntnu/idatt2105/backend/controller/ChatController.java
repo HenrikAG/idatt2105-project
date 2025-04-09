@@ -23,7 +23,6 @@ import ntnu.idatt2105.backend.service.ChatService;
 /**
  * Endpoint for handling HTTP request regartding chats.
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("api/chats")
 public class ChatController {

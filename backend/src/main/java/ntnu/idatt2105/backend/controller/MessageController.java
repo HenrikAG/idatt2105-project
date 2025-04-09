@@ -23,7 +23,6 @@ import ntnu.idatt2105.backend.service.MessageService;
 /**
  * Handles HTTP requests related to messages.
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("api/messages")
 public class MessageController {
