@@ -43,15 +43,10 @@ const router = createRouter({
       component : Login,
     },
     {
-      path : '/search/user/:id',
-      name : 'searchUserId',
-      component : SearchUserView,
-    },
-    {
-      path : '/search/product/:id',
-      name : 'searchProductId',
-      component : ProductsView
-    },
+      path : '/user',
+      name : 'user',
+      component : Users,
+    }
 
   ],
 })
