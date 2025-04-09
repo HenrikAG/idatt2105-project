@@ -23,7 +23,7 @@
       <div class="user-details">
 
         <p class="user">Seller: {{ product.username }}</p>
-        <button id="contact-seller" @click="executeContactSeller(userData.name || props.product.username)">Contact Seller</button>
+        <button v-if="userStore.username !== product.username" id="contact-seller" @click="executeContactSeller(userData.name || props.product.username)">Contact Seller</button>
         <button 
           id="delete-product" 
           v-if="userStore.role === 'ADMIN'" 
@@ -62,25 +62,8 @@ const userStore = useUserStore()
 // Toggle the expanded state
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value;
-  if (isExpanded.value) {
-    fetchUserData(props.product.username);
-  }
 }
 
-const fetchUserData = async (username: string) => {
-  try {
-    // Fetch user data from the API using the userId
-    const response = await fetch(`http://localhost:8080/api/users/${username}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch user data');
-    }
-    const data = await response.json();
-    // Update local state instead of the prop
-    userData.value = data;
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-  }
-}
 
 const executeContactSeller = (username: string) => {
   // Open chat with seller and include product context

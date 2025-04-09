@@ -179,6 +179,9 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   padding: 20px;
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr; /* Single column on small screens */
+  }
 }
 
 .category-item {

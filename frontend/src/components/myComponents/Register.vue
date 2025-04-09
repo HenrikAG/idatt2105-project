@@ -166,7 +166,7 @@ export default {
                 const response = await axios.post('http://localhost:8080/api/user/register', {
                     username: this.username,
                     password: this.password,
-                    favoriteCategories: this.selectedCategories, // Send selected categories
+                    favoriteCategories: this.selectedCategories
                 });
                 
                 console.log('Registration successful:', response.data);
