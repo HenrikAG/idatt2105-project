@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +30,6 @@ import ntnu.idatt2105.backend.service.UserService;
 /**
  * Handles HTTP requests related to users.
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -94,7 +92,7 @@ public class UserController {
      * @return a ResponseEntity with a list of all items from the user's favotrite categories, 
      * or a ResponsEntity indicating a user was not found
      */
-    @GetMapping("/{userId}/favorite-items")
+    @GetMapping("/{username}/favorite-items")
     public ResponseEntity<?> getItemsFromFavoriteCategories(@PathVariable String username) {
         try {
             List<ItemDTO> itemDTOs = userService.getItemsFromFavoriteCategories(username);
