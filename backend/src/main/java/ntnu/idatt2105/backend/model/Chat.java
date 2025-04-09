@@ -1,7 +1,10 @@
 package ntnu.idatt2105.backend.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.annotation.LastModifiedDate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -34,6 +37,9 @@ public class Chat {
     
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages = new ArrayList<>();
+
+    @LastModifiedDate
+    private LocalDateTime timeLastUpdated;
 
     /**
      * Constructs a Chat.
@@ -84,5 +90,23 @@ public class Chat {
      */
     public void setUser2(User user2) {
         this.user2 = user2;
+    }
+
+    /**
+     * Returns the time the Chat was last updated.
+     * 
+     * @return the last time the chat was updated
+     */
+    public LocalDateTime getTimeLastUpdated() {
+        return timeLastUpdated;
+    }
+
+    /**
+     * Sets the time the chat was last updated.
+     * 
+     * @param timeLastUpdated the time the chat was last updated
+     */
+    public void setTimeLastUpdated(LocalDateTime timeLastUpdated) {
+        this.timeLastUpdated = timeLastUpdated;
     }
 }
