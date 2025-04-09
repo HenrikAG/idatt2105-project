@@ -26,4 +26,13 @@ public class MessageDTO {
         this.content = message.getContent();
         this.timestamp = message.getTimestamp();
     }
+
+    /**
+     * Returns the id of the chat the message is being sent in.
+     * 
+     * @return the id of the chat the message is being sent in
+     */
+    public Long getChatId() {
+        return chatId;
+    }
 }

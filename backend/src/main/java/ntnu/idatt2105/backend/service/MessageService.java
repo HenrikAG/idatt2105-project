@@ -25,6 +25,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final MessageWebSocketSender messageWebSocketSender;
 
     /**
      * Constructs a MessageService.
@@ -32,12 +33,14 @@ public class MessageService {
      * @param messageRepository repository for accessing and registering messages
      * @param chatRepository repository for accessing chats
      * @param userRepository repository for accessing users
+     * @param messageWebSocketSender WebSocket sender to broadcast messages in real-time
      */
     @Autowired
-    public MessageService(MessageRepository messageRepository, ChatRepository chatRepository, UserRepository userRepository) {
+    public MessageService(MessageRepository messageRepository, ChatRepository chatRepository, UserRepository userRepository, MessageWebSocketSender messageWebSocketSender) {
         this.messageRepository = messageRepository;
         this.chatRepository = chatRepository;
         this.userRepository = userRepository;
+        this.messageWebSocketSender = messageWebSocketSender;
     }
 
     /**
@@ -59,9 +62,11 @@ public class MessageService {
 
         chat.setTimeLastUpdated(LocalDateTime.now());
         chatRepository.save(chat);
-
         Message savedMessage = messageRepository.save(newMessage);
-        return new MessageDTO(savedMessage);
+        MessageDTO dto = new MessageDTO(savedMessage);
+
+        messageWebSocketSender.sendMessageToChat(dto);
+        return dto;
     }
 
     /**
