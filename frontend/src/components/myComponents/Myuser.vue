@@ -186,7 +186,7 @@
             image_url: newProduct.value.image_url || null
           };
           
-          await axios.post('http://localhost:8080/api/items', productData, {
+          await axios.post('http://localhost:8080/api/items/post', productData, {
             headers: { 
               'Authorization': `Bearer ${userStore.token}`,
               'Content-Type': 'application/json'
@@ -225,7 +225,7 @@
         if (!confirm('Are you sure you want to delete this product?')) return;
         
         try {
-          await axios.delete(`http://localhost:8080/api/items/${productId}`, {
+          await axios.delete(`http://localhost:8080/api/items/item/${productId}`, {
             headers: { Authorization: `Bearer ${userStore.token}` }
           });
           
