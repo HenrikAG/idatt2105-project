@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ntnu.idatt2105.backend.dto.CategoryDTO;
 import ntnu.idatt2105.backend.dto.CategoryRegisterDTO;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
 import ntnu.idatt2105.backend.exception.NotFoundException;
-import ntnu.idatt2105.backend.model.Category;
 import ntnu.idatt2105.backend.service.CategoryService;
 
 /**
@@ -43,9 +42,9 @@ public class CategoryController {
      * @return A ResponseEntity containing a list og Category objects and the HTTP status code.
     */
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         logger.info("A user is trying to get all existing categories.");
-        List<Category> categories = categoryService.getAllCategories();
+        List<CategoryDTO> categories = categoryService.getAllCategories();
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
@@ -56,12 +55,12 @@ public class CategoryController {
      * @return a ResponseEntity with a String describing the result, and a status code.
      */
     @PostMapping
-    public ResponseEntity<String> registerCategory(@RequestBody CategoryRegisterDTO registerDTO) {
+    public ResponseEntity<?> registerCategory(@RequestBody CategoryRegisterDTO registerDTO) {
         logger.info("Trying to register new categry with name: " + registerDTO.getName());
 
         try {
-            categoryService.addCategory(registerDTO);
-            return new ResponseEntity<>("Successfully registered category", HttpStatus.CREATED);
+            CategoryDTO category = categoryService.addCategory(registerDTO);
+            return new ResponseEntity<>(category, HttpStatus.OK);
         } catch (AlreadyExistsException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
         }
