@@ -8,8 +8,6 @@ import ntnu.idatt2105.backend.model.User;
  */
 public class UserDTO {
     private final String username;
-    private final String password;
-    private final Role role;
 
     /**
      * Constructs a UserDTO with the specified user's info.
@@ -18,8 +16,6 @@ public class UserDTO {
      */
     public UserDTO(User user) {
         this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.role = user.getRole();
     }
 
     /**
@@ -29,23 +25,5 @@ public class UserDTO {
      */
     public String getUsername() {
         return username;
-    }
-
-    /**
-     * Returns the password of the user.
-     * 
-     * @return the password of the user
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * Returns the role of the user
-     * 
-     * @return the role of the user
-     */
-    public Role getRole() {
-        return role;
     }
 }
