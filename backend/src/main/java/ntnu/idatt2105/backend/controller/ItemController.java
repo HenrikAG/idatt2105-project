@@ -58,6 +58,7 @@ public class ItemController {
      * 
      * @return ReponseEntity with List containing all items as itemDTOs
      */
+    @GetMapping
     public ResponseEntity<List<ItemDTO>> getAllItems() {
         List<ItemDTO> items = itemService.getAllItems();
         return new ResponseEntity<>(items, HttpStatus.OK);
