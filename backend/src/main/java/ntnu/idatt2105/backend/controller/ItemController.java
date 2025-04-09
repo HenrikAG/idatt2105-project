@@ -76,7 +76,7 @@ public class ItemController {
         try {
             Item newItem = itemService.registerItem(itemRequest);
             return new ResponseEntity<>(newItem, HttpStatus.OK);
-        } catch (IllegalArgumentException exception) {
+        } catch (NotFoundException exception) {
             return new ResponseEntity<>("Error: " + exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
