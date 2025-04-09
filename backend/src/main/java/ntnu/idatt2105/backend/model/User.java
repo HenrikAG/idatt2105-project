@@ -139,4 +139,8 @@ public class User {
     public Set<Category> getFavoriteCategories() {
         return favoriteCategories;
     }
+
+    public void addFavoriteCategory(Category category) {
+        favoriteCategories.add(category);
+    }
 }

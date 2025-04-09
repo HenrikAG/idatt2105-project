@@ -13,7 +13,9 @@ import ntnu.idatt2105.backend.dto.UserDTO;
 import ntnu.idatt2105.backend.dto.UserRegisterDTO;
 import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
+import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.User;
+import ntnu.idatt2105.backend.repository.CategoryRepository;
 import ntnu.idatt2105.backend.repository.UserRepository;
 
 /**
@@ -22,6 +24,7 @@ import ntnu.idatt2105.backend.repository.UserRepository;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -31,8 +34,9 @@ public class UserService {
      * @param passwordEncoder encoder to encode user passwords
      */
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, CategoryRepository categoryRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -51,6 +55,10 @@ public class UserService {
         newUser.setUsername(userRegisterInfo.getUsername());
         newUser.setPassword(passwordEncoder.encode(userRegisterInfo.getPassword()));
         newUser.setRole(Role.USER);
+        
+        userRegisterInfo.getFavoriteCategories()
+            .forEach(categoryName -> newUser.addFavoriteCategory(categoryRepository.findByName(categoryName)
+                .orElseThrow(() -> new NotFoundException("Category with name: " + categoryName + " not found"))));
 
         return new UserDTO(userRepository.save(newUser));
     }

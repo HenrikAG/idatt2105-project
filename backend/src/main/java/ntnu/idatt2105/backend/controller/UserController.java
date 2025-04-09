@@ -92,7 +92,7 @@ public class UserController {
      * @return a ResponseEntity with a list of all items from the user's favotrite categories, 
      * or a ResponsEntity indicating a user was not found
      */
-    @GetMapping("/{userId}/favorite-items")
+    @GetMapping("/{username}/favorite-items")
     public ResponseEntity<?> getItemsFromFavoriteCategories(@PathVariable String username) {
         try {
             List<ItemDTO> itemDTOs = userService.getItemsFromFavoriteCategories(username);
