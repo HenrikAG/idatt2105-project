@@ -71,7 +71,7 @@ public class ItemService {
      * 
      * @param itemRequest an ItemDTO object with the item to be registered
      * @return The registered Item object
-     * @throws IllegalArgumentException if there is no category with the name specified by the request object
+     * @throws NotFoundException if there is no category with the name specified by the request object
      */
     public Item registerItem(ItemRegisterDTO itemRequest) {
         Category itemCategory = categoryRepository.findByName(itemRequest.getCategoryName())
