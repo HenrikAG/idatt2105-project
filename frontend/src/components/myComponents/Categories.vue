@@ -62,7 +62,7 @@ export default {
       try {
           const response = await axios.get('http://localhost:8080/api/categories', {
           headers: {
-            Authorization: `Bearer ${userstore.token}`
+            'Authorization': `Bearer ${userstore.token}`
           }
           });
         categories.value = response.data;
@@ -90,7 +90,7 @@ export default {
           name: newCategoryName.value
         }, {
           headers: {
-            Authorization: `Bearer ${userstore.token}`
+            'Authorization': `Bearer ${userstore.token}`
           }
         });
         
@@ -125,7 +125,7 @@ export default {
       try {
         await axios.delete(`http://localhost:8080/api/categories/${deleteCategoryName.value}`, {
           headers: {
-            Authorization: `Bearer ${userstore.token}`
+            'Authorization': `Bearer ${userstore.token}`
           }
         });
         
