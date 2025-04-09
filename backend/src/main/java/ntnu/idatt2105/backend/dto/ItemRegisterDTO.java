@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Data Transfer Object (DTO) for registering new items.
  */
 public class ItemRegisterDTO {
-    private long userId;
+    private String username;
     private String name;
     private double price;
     private String description;
@@ -16,17 +16,17 @@ public class ItemRegisterDTO {
     /**
      * Constructs a ItemRegisterDTO with the specified parameters.
      * 
-     * @param userId the id of the user registering the item
+     * @param username the username of the user registering the item
      * @param name the name of the item
      * @param price the price of the item
      * @param description a description of the item
      * @param categoryName the name of the category of the item
      * @param imageUrl the url of the image of the item
      */
-    public ItemRegisterDTO(@JsonProperty("user_id") long userId, @JsonProperty("item_name") String name,
+    public ItemRegisterDTO(@JsonProperty("username") String username, @JsonProperty("item_name") String name,
     @JsonProperty("price") double price, @JsonProperty("description") String description,
     @JsonProperty("category") String categoryName, @JsonProperty("image_url") String imageUrl) {
-        this.userId = userId;
+        this.username = username;
         this.name = name;
         this.price = price;
         this.description = description;
@@ -35,12 +35,12 @@ public class ItemRegisterDTO {
     }
 
     /**
-     * Returns the id of the user selling the item.
+     * Returns the username of the user selling the item.
      * 
-     * @return the id of the user selling the item
+     * @return the username of the user selling the item
      */
-    public long getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
     /**
