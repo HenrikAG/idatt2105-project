@@ -10,4 +10,5 @@ import ntnu.idatt2105.backend.model.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByName(String name);
+    Optional<Category> deleteByName(String name);
 }
