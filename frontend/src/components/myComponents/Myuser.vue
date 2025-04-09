@@ -178,7 +178,7 @@
         
         try {
           const productData = {
-            user_id: userStore.userId,
+            seller_name: userStore.username,
             item_name: newProduct.value.item_name,
             price: parseFloat(newProduct.value.price),
             description: newProduct.value.description,

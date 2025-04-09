@@ -147,25 +147,14 @@
   }
   
   .product-grid {
-    display: grid;
+    display: block;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
   }
   
-  @media (max-width: 768px) {
-    .product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .product-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  
   .product-item {
     display: flex;
-    justify-content: center;
+    justify-content: left;
+    padding: 10px;
   }
   </style>
