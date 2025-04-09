@@ -119,4 +119,16 @@ public class UserService {
             .map(UserDTO::new)
             .collect(Collectors.toList());
     }
+
+    /**
+     * Detetes the user with the specified username.
+     * 
+     * @param username the username of the user to be deleted
+     */
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not not found with username" + username));
+
+        userRepository.delete(user);
+    }
 }
