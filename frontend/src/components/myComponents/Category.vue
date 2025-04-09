@@ -31,6 +31,7 @@
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     width: 100%;
+    color: black;
   }
   
   .cat_box:hover {

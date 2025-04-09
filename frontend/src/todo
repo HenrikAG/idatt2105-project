@@ -1,6 +1,3 @@
-* admin system
-* working chat system
-* user can add item to list
-* user can delete item from list
-* admin board that removes items and users
-* admin can make user verified user
+* working chat system - backend
+* user can add/delete item
+* price slider
