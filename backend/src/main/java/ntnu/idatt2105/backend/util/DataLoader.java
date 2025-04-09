@@ -36,7 +36,6 @@ public class DataLoader implements ApplicationRunner {
         User admin = new User("Admin", passwordEncoder.encode("PasswordAdmin123"), Role.ADMIN);
         userRepository.save(admin);
         userRepository.save(testUser);
-        long userId = userRepository.findByUsername("Username").get().getId();
 
         CategoryRegisterDTO electronics = new CategoryRegisterDTO("Electronics");
         CategoryRegisterDTO books = new CategoryRegisterDTO("Books");
@@ -46,9 +45,9 @@ public class DataLoader implements ApplicationRunner {
         categoryService.addCategory(books);
         categoryService.addCategory(clothing);
 
-        ItemRegisterDTO laptop = new ItemRegisterDTO(userId, "Laptop", 1299.99, "A high-performance laptop", "Electronics", "laptop.jpg");
-        ItemRegisterDTO novel = new ItemRegisterDTO(userId, "Fantasy Novel", 19.99, "A thrilling fantasy adventure", "Books", "novel.jpg");
-        ItemRegisterDTO tshirt = new ItemRegisterDTO(userId, "T-shirt", 14.99, "100% cotton T-shirt", "Clothing", "tshirt.jpg");
+        ItemRegisterDTO laptop = new ItemRegisterDTO(testUser.getUsername(), "Laptop", 1299.99, "A high-performance laptop", "Electronics", "laptop.jpg");
+        ItemRegisterDTO novel = new ItemRegisterDTO(testUser.getUsername(), "Fantasy Novel", 19.99, "A thrilling fantasy adventure", "Books", "novel.jpg");
+        ItemRegisterDTO tshirt = new ItemRegisterDTO(testUser.getUsername(), "T-shirt", 14.99, "100% cotton T-shirt", "Clothing", "tshirt.jpg");
 
         itemService.registerItem(laptop);
         itemService.registerItem(novel);
