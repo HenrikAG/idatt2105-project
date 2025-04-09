@@ -81,6 +81,13 @@ public class ItemController {
         }
     }
 
+    /**
+     * Updates the item with the specified id.
+     * 
+     * @param id the id of the item to be updated
+     * @param itemUpdateRequest DTO with the new item info
+     * @return ResponseEntity with the result of the request
+     */
     @PutMapping("/{id}")
     public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody ItemDTO itemUpdateRequest) {
         logger.info("A user is trying to update the item with id: " + id + ", with the follwing info:" + itemUpdateRequest);
@@ -94,6 +101,12 @@ public class ItemController {
     }
 
 
+    /**
+     * Deletes the item with the specified id.
+     * 
+     * @param id the id of the item to be deleted.
+     * @return ResponseEntity with the result of the request
+     */
     @DeleteMapping("/item/{id}")
     public ResponseEntity<?> deleteItem(@PathVariable Long id) {
         logger.info("User is trying to delete item with id: " + id);
