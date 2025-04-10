@@ -81,30 +81,11 @@
           // Limit to 5 items
           this.products = response.data.slice(0, 5);
           
-          // Fetch user info for each product
-          await this.fetchUsers();
-          
         } catch (error) {
           console.error('Error fetching recent products:', error);
           this.error = 'Failed to load recent products';
         } finally {
           this.loading = false;
-        }
-      },
-      
-      async fetchUsers() {
-        // Get unique usernames from products
-        const usernames = [...new Set(this.products.map(p => p.username))];
-        
-        try {
-          for (const username of usernames) {
-            const response = await axios.get(`http://localhost:8080/api/user/${username}`, {
-              headers: this.isLoggedIn ? { 'Authorization': `Bearer ${this.userStore.token}` } : {}
-            });
-            this.users[username] = response.data;
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
         }
       },
       

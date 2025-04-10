@@ -1,6 +1,5 @@
 package ntnu.idatt2105.backend.model;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
