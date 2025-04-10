@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ntnu.idatt2105.backend.dto.ChatDTO;
 import ntnu.idatt2105.backend.dto.ChatRequest;
 import ntnu.idatt2105.backend.exception.NotFoundException;
@@ -23,6 +25,7 @@ import ntnu.idatt2105.backend.service.ChatService;
  * Endpoint for handling HTTP request regartding chats.
  */
 @RestController
+@Tag(name = "Chats", description = "Operations related to chats between two different users")
 @RequestMapping("api/chats")
 public class ChatController {
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
@@ -46,6 +49,7 @@ public class ChatController {
      * @return ResponseEntity with the chat if successful, or the exception message otherwise
      */
     @PostMapping
+    @Operation(summary = "Create a new chat between two users, or return an existing chat if there already is one")
     public ResponseEntity<?> startChat(@RequestBody ChatRequest request) {
         logger.info("Atempting to initialize chat. User1: " + request.getUser1Username() + " User2: " + request.getUser2Username());
 
@@ -68,6 +72,7 @@ public class ChatController {
      * @return ResponseEntity with the chat if successful, otherwise a ResponseEntity with the exception message
      */
     @GetMapping("user/{username}")
+    @Operation(summary = "Get all of the user's chats")
     public ResponseEntity<?> getUserChats(@PathVariable String username) {
         logger.info("Atempting to get all of the chats for user withusername: " + username);
         try {
@@ -87,6 +92,7 @@ public class ChatController {
      * @return ResponseEntity with the chat if successful, otherwise the exception message
      */
     @GetMapping("/between")
+    @Operation(summary = "Get the chat between the two specified users")
     public ResponseEntity<?> getChatBetweenUsers(@RequestBody ChatRequest request) {
         logger.info("Atempting to retrieve chat between user: " + request.getUser1Username() + " and user: " + request.getUser2Username());
 

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ntnu.idatt2105.backend.dto.MessageDTO;
 import ntnu.idatt2105.backend.dto.SendMessageRequest;
 import ntnu.idatt2105.backend.exception.NotFoundException;
@@ -23,6 +25,7 @@ import ntnu.idatt2105.backend.service.MessageService;
  * Handles HTTP requests related to messages.
  */
 @RestController
+@Tag(name = "messages", description = "Operations related to chat messages")
 @RequestMapping("api/messages")
 public class MessageController {
     private final static Logger logger = LoggerFactory.getLogger(MessageController.class);
@@ -46,6 +49,7 @@ public class MessageController {
      * @return ResponseEntity with info regarding the result and the apropriate HttpStatus
      */
     @PostMapping
+    @Operation(summary = "Send a message to the specified chat")
     public ResponseEntity<?> sendMessage(@RequestBody SendMessageRequest request) {
         logger.info("Atempting to send message with chatId = " + request.getChatId() + " and senderUsername = " + request.getSenderUsername());
 
@@ -66,6 +70,7 @@ public class MessageController {
      * @return List containing MessageDTOs for the messages in the chat
      */
     @GetMapping("/chat/{chatId}")
+    @Operation(summary = "Get all messages from the chat with the specified ID")
     public ResponseEntity<List<MessageDTO>> getChatMessages(@PathVariable Long chatId) {
         logger.info("Retrieving all messages from chat with id=" + chatId);
 
