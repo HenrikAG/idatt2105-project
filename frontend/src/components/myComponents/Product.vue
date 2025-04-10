@@ -50,6 +50,9 @@ import type { User } from '@/types/User'
 import { useChatStore } from '@/components/store/chatstore.ts'
 import { useUserStore } from '@/components/store/userstore.ts'
 import axios from 'axios'
+import ChatOverlay from './ChatOverlay.vue'
+import type { Chat } from '@/types/Chat'
+import { fetchChat } from '@/utils/ChatUtils'
 
 // Define props that accept a Product and a User object
 const props = defineProps<{
@@ -74,9 +77,14 @@ const toggleExpand = () => {
 const executeContactSeller = (username: string, event?: Event) => {
   // Stop event propagation first
   event?.stopPropagation();
+  fetchChat(userStore.username, username)
+    .then((chat: Chat) => {
+      chatStore.openChat(username, chat);
+    })
+    .catch((err) => {
+      console.error('Error loading chat:', err);
+    });
   
-  // Open chat with seller and force send a new product message
-  chatStore.openChat(username);
 }
 
 const executeDeleteProduct = (productId: number, event?: MouseEvent) => {

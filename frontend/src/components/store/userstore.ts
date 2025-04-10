@@ -1,10 +1,5 @@
 import { defineStore } from 'pinia';
 import { jwtDecode } from 'jwt-decode';
-import { createPinia } from 'pinia';
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
-
-const pinia = createPinia();
-pinia.use(piniaPluginPersistedstate);
 
 export const useUserStore = defineStore('token', {
     state: () => ({
@@ -35,7 +30,3 @@ export const useUserStore = defineStore('token', {
         }
     }
 });
-
-export { pinia };
-
-

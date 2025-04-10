@@ -100,6 +100,7 @@ import type { Message } from '@/types/Message';
 import SockJS from 'sockjs-client';
 import { Client } from 'webstomp-client';
 import Stomp from 'webstomp-client';
+import { fetchChats, fetchMessages } from '@/utils/ChatUtils';
 
 // State management
 const userStore = useUserStore();
@@ -108,7 +109,7 @@ const isOpen = computed(() => chatStore.isOpen);
 const currentUsername = computed(() => userStore.username);
 
 // UI state
-const currentChat = ref<Chat | null>(null);
+const currentChat = computed(() => chatStore.currentChat)
 const chats = ref<Chat[]>([]);
 const messages = ref<Message[]>([]);
 const newMessage = ref('');
@@ -116,70 +117,22 @@ const messagesContainer = ref<HTMLElement | null>(null);
 const messageInput = ref<HTMLInputElement | null>(null);
 const isLoading = ref(false);
 const isSending = ref(false);
-const error = ref<string | null>(null);
 
 let stompClient: Client | null = null;
 
 onMounted(async () => {
   if (currentUsername.value) {
-    await fetchChats();
+    await fetchUserChats();
   }
 });
 
 // API Methods
-async function fetchChats() {
-  if (!currentUsername.value || !userStore.token) return;
-  
-  isLoading.value = true;
-  error.value = null;
-  
-  try {
-    const response = await axios.get(
-      `http://localhost:8080/api/chats/user/${currentUsername.value}`,
-      {
-        headers: { 'Authorization': `Bearer ${userStore.token}` }
-      }
-    );
-    
-    // Map API response to our chat format
-    chats.value = response.data.map((chatData: any) => {
-  
-      return {
-        id: chatData.id,
-        user1Username: chatData.user1Username,
-        user2Username: chatData.user2Username,
-        timeLastUpdated: chatData.timeLastUpdated
-      };
-    });
-    
-  } catch (err) {
-    console.error('Failed to fetch chats:', err);
-    error.value = 'Failed to load chats';
-  } finally {
-    isLoading.value = false;
-  }
+async function fetchUserChats() {
+  chats.value = await fetchChats(currentUsername.value);
 }
 
 async function fetchMessagesFromChat(chat: Chat) {
-  console.log("Fetch messages.")
-  isLoading.value = true;
-  try {
-    const response = await axios.get(
-      `http://localhost:8080/api/messages/chat/${chat.id}`,
-      {
-        headers: { 'Authorization': `Bearer ${userStore.token}` }
-      }
-    );
-    
-    messages.value = response.data;
-    console.log(messages.value);
-
-    connectWebSocket(chat.id, handleIncommingMessage, userStore.token);
-
-  } catch (err) {
-    isLoading.value = false;
-    console.error("Failer do load messages");
-  }
+  messages.value = await fetchMessages(chat);
 }
 
 function handleIncommingMessage(message: Message) {
@@ -290,7 +243,7 @@ function toggleChat() {
 }
 
 function selectChat(chat: Chat) {
-  currentChat.value = chat;
+  chatStore.currentChat = chat;
   fetchMessagesFromChat(chat);
   
   nextTick(() => {
@@ -300,8 +253,8 @@ function selectChat(chat: Chat) {
 }
 
 function goBackToChats() {
-  currentChat.value = null;
-  fetchChats();
+  chatStore.currentChat = null;
+  fetchUserChats();
 }
 
 // Returns name of the other user in the chat.
