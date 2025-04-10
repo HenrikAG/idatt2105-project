@@ -238,7 +238,7 @@ function toggleChat() {
   if (isOpen.value) {
     chatStore.closeChat();
   } else {
-    chatStore.openChat('');
+    chatStore.openChat('', null);
   }
 }
 
