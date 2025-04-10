@@ -1,13 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/myViews/HomeView.vue'
-import CategoriesView from '@/views/myViews/CategoriesView.vue'
-import ProductsView from '@/views/myViews/ProductsView.vue'
-import MyUserView from '@/views/myViews/MyuserView.vue'
-import SearchView from '@/views/myViews/SearchView.vue'
-import SearchUserView from '@/views/myViews/UsersView.vue'
-import Users from '@/components/myComponents/Users.vue'
-import UsersView from '@/views/myViews/UsersView.vue'
-import Login from '@/views/myViews/LoginView.vue'
+import HomeView from '@/views/HomeView.vue'
+import CategoriesView from '@/views/CategoriesView.vue'
+import MyProfileView from '@/views/MyProfileView.vue'
+import ProductsView from '@/views/ProductsView.vue'
+import AdminUserView from '@/views/AdminUserView.vue'
+import LoginView from '@/views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,24 +25,19 @@ const router = createRouter({
       component : ProductsView,
     },
     {
-      path : '/my-user',
-      name : 'myUser',
-      component : MyUserView,
-    },
-    {
-      path : '/search',
-      name : 'search',
-      component : SearchView,
-    },
-    {
-      path : '/login',
-      name : 'login',
-      component : Login,
+      path : '/profile',
+      name : 'profile',
+      component : MyProfileView,
     },
     {
       path : '/user',
       name : 'user',
-      component : Users,
+      component : AdminUserView,
+    },
+    {
+      path : '/login',
+      name : 'login',
+      component : LoginView,
     }
 
   ],

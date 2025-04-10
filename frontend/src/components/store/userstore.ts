@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { jwtDecode } from 'jwt-decode';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import type { DTOloginToken } from '@/types/DTOloginToken';
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -18,15 +19,11 @@ export const useUserStore = defineStore('token', {
     },
 
     actions: {
-        saveUser(userData: any) {
-            this.token = userData.token;
-            const decodedToken: any = jwtDecode(userData.token);
+        saveUser(tokendata : DTOloginToken) {
+            this.token = tokendata.token;
+            const decodedToken: any = jwtDecode(tokendata.token);
             this.username = decodedToken.sub;
             this.role = decodedToken.role;
-
-            console.log('Decoded token:', decodedToken);
-            console.log('User ID:', this.username);
-            console.log('User role:', this.role);
         },
         clearUser() {
             this.username = '';
