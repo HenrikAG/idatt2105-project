@@ -11,13 +11,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.service.annotation.DeleteExchange;
 
 import ntnu.idatt2105.backend.dto.ItemDTO;
 import ntnu.idatt2105.backend.dto.LoginRequest;
@@ -137,12 +137,15 @@ public class UserController {
      * @param username the username of the user to be deleted
      * @return ResponseEntity with the response of the request
      */
-    @DeleteExchange(("/username"))
+    @DeleteMapping(("/{username}"))
     public ResponseEntity<?> deleteUser(@PathVariable String username) {
+        logger.info("Atempting to delete user with username: " + username);
         try {
+            logger.info("Successfully deleted user");
             userService.deleteUser(username);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (UsernameNotFoundException exception) {
+            logger.error("Failed deleting user", exception);
             return new ResponseEntity<>("User with username: " + username + " not found", HttpStatus.BAD_REQUEST);
         }
     }

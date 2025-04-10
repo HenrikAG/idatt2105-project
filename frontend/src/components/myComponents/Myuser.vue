@@ -250,7 +250,7 @@
       
       const deleteAccount = async () => {
         try {
-          await axios.delete(`http://localhost:8080/api/user`, {
+          await axios.delete(`http://localhost:8080/api/user/${userStore.username}`, {
             headers: { Authorization: `Bearer ${userStore.token}` }
           });
           

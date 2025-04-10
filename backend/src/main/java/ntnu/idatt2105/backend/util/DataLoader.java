@@ -15,7 +15,6 @@ import ntnu.idatt2105.backend.repository.UserRepository;
 import ntnu.idatt2105.backend.service.CategoryService;
 import ntnu.idatt2105.backend.service.ChatService;
 import ntnu.idatt2105.backend.service.ItemService;
-import ntnu.idatt2105.backend.service.MessageService;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -24,17 +23,15 @@ public class DataLoader implements ApplicationRunner {
     private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private ChatService chatService;
-    private MessageService messageService;
 
     @Autowired
     public DataLoader(ItemService itemService, CategoryService categoryService, UserRepository userRepository,
-            PasswordEncoder passwordEncoder, MessageService messageService, ChatService chatService) {
+            PasswordEncoder passwordEncoder, ChatService chatService) {
 
         this.itemService = itemService;
         this.categoryService = categoryService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.messageService = messageService;
         this.chatService = chatService;
     }
 
