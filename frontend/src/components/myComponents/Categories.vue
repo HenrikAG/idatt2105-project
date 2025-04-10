@@ -39,6 +39,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Category from '@/components/myComponents/Category.vue';
 import { useUserStore } from '@/components/store/userstore.ts';
+import type { CategoryRequest } from '@/types/CategoryRequest';
 
 export default {
   name: 'Categories',
@@ -84,11 +85,13 @@ export default {
       
       // Clear any previous messages
       createMessage.value = '';
+
+      const categoryRequest: CategoryRequest = {
+        name: newCategoryName.value
+      }
       
       try {
-        await axios.post('http://localhost:8080/api/categories', {
-          name: newCategoryName.value
-        }, {
+        await axios.post('http://localhost:8080/api/categories', categoryRequest, {
           headers: {
             'Authorization': `Bearer ${userstore.token}`
           }
@@ -123,11 +126,12 @@ export default {
       deleteMessage.value = '';
       
       try {
-        await axios.delete(`http://localhost:8080/api/categories/${deleteCategoryName.value}`, {
+        console.log(deleteCategoryName.value)
+        await axios.delete(`http://localhost:8080/api/categories/${deleteCategoryName.value}`), {
           headers: {
             'Authorization': `Bearer ${userstore.token}`
           }
-        });
+        }
         
         // Success message
         deleteMessage.value = `Category "${deleteCategoryName.value}" deleted successfully!`;
