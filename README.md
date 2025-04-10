@@ -10,14 +10,15 @@ We havent set up for deployment for docker yet.
 
 To follow this setup tutorial you will need:
 - Maven
-- Nodejs
+- Node
 - Java
 - Available ports: 8080 and 5173
 
 ### Backend
-1. Clone the project
-2. run cd backend
-3. Run mvn spring-boot:run
+1. Clone the project: git clone https://github.com/HenrikAG/idatt2105-project.git
+2. From project folder run the following commands:
+3. cd backend
+4. mvn spring-boot:run
 
 The backend will now be running on post 8080.
 The default admin password username is:
@@ -31,8 +32,11 @@ The username and password of the user is:
 ### Frontend
 Star from the project folder and run the following commands:
 1. cd frontend
-2. npm run build (currently not working just use npm run dev instead)
-3. Should find build file of project in frontend ./dist folder (wont wont work since build not working)
+2. npm install jwt-decoder
+3. npm install sockjs-client
+4. npm install pinia-plugin-persistedstate
+5. npm run build (currently not working just use npm run dev instead)
+6. Should find build file of project in frontend ./dist folder (wont wont work since build not working)
 The frontend should then run on port 5173
 
 ## Run tests
@@ -54,19 +58,21 @@ Unit tests (vitest)
 ## Technologies
 - Vue 3
 - Maven
-- Java
-- Spring Boot
+- Java 21
+- Spring Boot 3
 - Spring Data JPA
 - H2 Database
 
 ## Documentation
 - [Swagger]{http://localhost:8080/swagger-ui/index.html}
+- (Just seatch http://localhost:8080/swagger-ui/index.html when running the backend)
 - JavaDoc
 
 ## Functionality
 ### Not logged in
 - Log in
-- De registered categories and products
+- See registered categories and products
+- Search for users and products
 
 ### User
 - All functionality as not logged in
@@ -79,6 +85,19 @@ Unit tests (vitest)
 ### Admin
 - All functionality of user
 - Add categories
-- Delete categories (Not working)
+- Delete categories (Not working, 403 error)
 - Delete other user's products
 - Delete other users
+
+# Roadmap
+- Fix typescring errors so you can run npm run build
+- Create unit tests and cypress test
+- Refactor frontend: move functions to util classes + use stores where it makes sense
+- Fix endpoint paths to make more sense/be more consistant in naming scheme
+- Add database with long term storage (not h2 in memory db)
+- Add functionalyty to press buy items
+- Add locations to items being sold
+
+# Contributos
+- Henrik André Gaustad (Mainly backend development)
+- Ole Kristian Wigum (Mainly frontend development)
