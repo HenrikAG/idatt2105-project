@@ -37,20 +37,23 @@
     methods: {
       async fetchUsers() {
         try {
-          // Get search query if any
-          const searchQuery = this.$route.query.search;
-          let url = 'http://localhost:8080/api/users';
+          const searchQuery = this.$route.query.search?.toLowerCase();
+          const response = await axios.get('http://localhost:8080/api/user/all');
           
           if (searchQuery) {
-            url += `?search=${encodeURIComponent(searchQuery)}`;
+            // Filter users on the client side
+            this.users = response.data.filter(user => 
+              user.username.toLowerCase().includes(searchQuery)
+            );
+          } else {
+            this.users = response.data;
           }
           
-          const response = await axios.get(url);
-          this.users = response.data;
           this.loading = false;
         } catch (error) {
           console.error('Error fetching users:', error);
           this.error = 'Failed to load users. Please try again later.';
+          this.loading = false;
         }
       }
     }

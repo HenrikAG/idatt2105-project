@@ -24,4 +24,20 @@ public class ChatDTO {
         this.user2Username = chat.getUser2().getUsername();
         this.timeLastUpdated = chat.getTimeLastUpdated();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getUser1Username() {
+        return user1Username;
+    }
+
+    public String getUser2Username() {
+        return user2Username;
+    }
+
+    public LocalDateTime getTimeLastUpdated() {
+        return timeLastUpdated;
+    }
 }

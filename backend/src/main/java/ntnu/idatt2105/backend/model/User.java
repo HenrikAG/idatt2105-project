@@ -3,6 +3,7 @@ package ntnu.idatt2105.backend.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,7 +35,7 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "seller")
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Item> listedItems = new HashSet<>();
 
     @ManyToMany
@@ -44,6 +45,12 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private Set<Category> favoriteCategories = new HashSet<>();
+
+    @OneToMany(mappedBy = "user1", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Chat> chatsInitiated = new HashSet<>();
+
+    @OneToMany(mappedBy = "user2", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Chat> chatsRecieved = new HashSet<>();
 
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -138,5 +145,23 @@ public class User {
      */
     public Set<Category> getFavoriteCategories() {
         return favoriteCategories;
+    }
+
+    /**
+     * Adds a new favorite category.
+     * 
+     * @param category the new favorite category
+     */
+    public void addFavoriteCategory(Category category) {
+        favoriteCategories.add(category);
+    }
+
+    /**
+     * Returns the user's listed items.
+     * 
+     * @return the user's listed items
+     */
+    public Set<Item> getListedItems() {
+        return listedItems;
     }
 }

@@ -13,7 +13,9 @@ import ntnu.idatt2105.backend.dto.UserDTO;
 import ntnu.idatt2105.backend.dto.UserRegisterDTO;
 import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.exception.AlreadyExistsException;
+import ntnu.idatt2105.backend.exception.NotFoundException;
 import ntnu.idatt2105.backend.model.User;
+import ntnu.idatt2105.backend.repository.CategoryRepository;
 import ntnu.idatt2105.backend.repository.UserRepository;
 
 /**
@@ -22,6 +24,7 @@ import ntnu.idatt2105.backend.repository.UserRepository;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -31,8 +34,9 @@ public class UserService {
      * @param passwordEncoder encoder to encode user passwords
      */
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, CategoryRepository categoryRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -51,6 +55,10 @@ public class UserService {
         newUser.setUsername(userRegisterInfo.getUsername());
         newUser.setPassword(passwordEncoder.encode(userRegisterInfo.getPassword()));
         newUser.setRole(Role.USER);
+        
+        userRegisterInfo.getFavoriteCategories()
+            .forEach(categoryName -> newUser.addFavoriteCategory(categoryRepository.findByName(categoryName)
+                .orElseThrow(() -> new NotFoundException("Category with name: " + categoryName + " not found"))));
 
         return new UserDTO(userRepository.save(newUser));
     }
@@ -84,6 +92,24 @@ public class UserService {
     }
 
     /**
+     * Gets a list containing the user's listed items mapped to ItemDTOs.
+     * 
+     * @param username the user's username
+     * @return the user's listed items mapped to ItemDTOs
+     * @throws UsernameNotFoundExcepiton if there is no user registered with the username
+     */
+    public List<ItemDTO> getListedItems(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not not found with username" + username));
+
+        List<ItemDTO> postedItems = user.getListedItems().stream()
+            .map(ItemDTO::new)
+            .collect(Collectors.toList());
+
+        return postedItems;
+    }
+
+    /**
      * Returns a list of all the registered users as UserDTOs.
      * 
      * @return a list of all registered users as UserDTOs
@@ -92,5 +118,17 @@ public class UserService {
         return userRepository.findAll().stream()
             .map(UserDTO::new)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Detetes the user with the specified username.
+     * 
+     * @param username the username of the user to be deleted
+     */
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not not found with username" + username));
+
+        userRepository.delete(user);
     }
 }

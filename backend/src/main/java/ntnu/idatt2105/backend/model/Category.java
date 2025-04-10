@@ -48,6 +48,15 @@ public class Category {
     }
 
     /**
+     * Returns the id of the category.
+     * 
+     * @return the id of the category
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
      * Returns the name of the cateogory.
      * 
      * @return the name of the category

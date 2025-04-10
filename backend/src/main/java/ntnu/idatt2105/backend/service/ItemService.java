@@ -34,6 +34,18 @@ public class ItemService {
     }
 
     /**
+     * Returns all of the registered items mapped to ItemDTOs.
+     * 
+     * @return List of all registered Items, mapped to ItemDTOs
+     */
+    public List<ItemDTO> getAllItems() {
+        List<Item> items = itemRepository.findAll();
+        return items.stream()
+            .map(ItemDTO::new)
+            .collect(Collectors.toList());        
+    }
+
+    /**
      * Returns a list of all the items with the specified category.
      * 
      * @param categoryName the name of the category you want the items of
@@ -59,7 +71,7 @@ public class ItemService {
      * 
      * @param itemRequest an ItemDTO object with the item to be registered
      * @return The registered Item object
-     * @throws IllegalArgumentException if there is no category with the name specified by the request object
+     * @throws NotFoundException if there is no category with the name specified by the request object
      */
     public Item registerItem(ItemRegisterDTO itemRequest) {
         Category itemCategory = categoryRepository.findByName(itemRequest.getCategoryName())

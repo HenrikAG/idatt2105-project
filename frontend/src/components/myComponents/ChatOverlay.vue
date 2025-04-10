@@ -1,71 +1,61 @@
 <template>
   <div class="chat-overlay">
-    <!-- Chat toggle button - always visible -->
+    <!-- Chat toggle button -->
     <button class="chat-button" @click="toggleChat" aria-label="Toggle chat">
       <span class="chat-button-text">{{ isOpen ? 'Close' : 'Chat' }}</span>
-      <span v-if="unreadCount > 0" class="notification-badge" aria-label="Unread messages">
-        {{ unreadCount }}
-      </span>
     </button>
     
-    <!-- Chat window -->
+    <!-- Chat window (conditionally rendered) -->
     <div v-if="isOpen" class="chat-window">
       <div class="chat-header">
-        <h3>{{ currentContact ? getUserName(currentContact.contactId) : 'Contacts' }}</h3>
+        <h3>{{ currentChat ? getOtherUsername(currentChat) : 'Contacts' }}</h3>
         <button class="close-button" @click="toggleChat" aria-label="Close chat">×</button>
       </div>
       
-      <!-- Contacts list view -->
-      <div v-if="!currentContact" class="chat-contacts-container">
+      <!-- Contacts list view (shown when no chat is selected) -->
+      <div v-if="!currentChat" class="chat-contacts-container">
         <div v-if="isLoading" class="loading-state">
           <div class="loading-spinner"></div>
           <p>Loading your conversations...</p>
         </div>
         
-        <div v-else-if="contacts.length === 0" class="empty-state">
+        <div v-else-if="chats.length === 0" class="empty-state">
           <p>No conversations yet</p>
         </div>
         
         <div v-else class="contacts-list">
           <div 
-            v-for="contact in contacts" 
-            :key="contact.contactId"
+            v-for="chat in chats" 
+            :key="chat.id"
             class="contact-item"
-            @click="selectContact(contact)"
+            @click="selectChat(chat)"
           >
             <div class="contact-avatar">
-              {{ getInitials(getUserName(contact.contactId)) }}
+              {{ getOtherUsername(chat) }}
             </div>
             <div class="contact-info">
-              <div class="contact-name">{{ getUserName(contact.contactId) }}</div>
-              <div class="contact-preview">{{ getLastMessagePreview(contact) }}</div>
-            </div>
-            <div 
-              v-if="getUnreadCount(contact)" 
-              class="unread-badge"
-              aria-label="Unread message count"
-            >
-              {{ getUnreadCount(contact) }}
+              <div class="contact-name">{{ getOtherUsername(chat) }}</div>
+              <!--<div class="contact-preview">{{ getLastMessagePreview(chat) }}</div>-->
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Chat conversation view -->
+      <!-- Chat conversation view (shown when a chat is selected) -->
       <div v-else class="chat-content">
         <div class="chat-messages" ref="messagesContainer">
-          <div v-if="currentContact.messages.length === 0" class="empty-chat-state">
+          <div v-if="messages.length === 0" class="empty-chat-state">
             <p>No messages yet. Start the conversation!</p>
           </div>
           
           <template v-else>
             <div 
-              v-for="(message, index) in currentContact.messages" 
-              :key="index"
-              :class="['message', message.isSender ? 'user-message' : 'contact-message']"
+              v-for="(message, index) in messages" 
+              :key="message.id || index"
+              :class="['message', message.senderUsername == currentUsername ? 'user-message' : 'contact-message']"
             >
               <div class="message-content">{{ message.content }}</div>
-              <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+              <div class="message-time">{{ message.timestamp }}</div>
             </div>
           </template>
         </div>
@@ -73,7 +63,7 @@
         <div class="chat-input">
           <button 
             class="back-button" 
-            @click="goBackToContacts" 
+            @click="goBackToChats" 
             aria-label="Back to contacts"
           >
             ←
@@ -90,6 +80,7 @@
             @click="sendMessage" 
             :disabled="!newMessage.trim() || isSending"
             class="send-button"
+            aria-label="Send message"
           >
             {{ isSending ? '...' : 'Send' }}
           </button>
@@ -102,169 +93,154 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import axios from 'axios';
-
-// Using the provided interfaces
-interface Message {
-  isSender: boolean;
-  content: string;
-  timestamp: Date;
-  read?: boolean; // Optional property to track read status
-}
-
-interface Contact {
-  contactId: number;
-  messages: Message[];
-}
-
-interface User {
-  id: number;
-  name: string;
-  email?: string;
-  image_url?: string | null;
-}
+import type { Chat } from '@/types/Chat';
+import { useUserStore } from '@/components/store/userstore.ts';
+import { useChatStore } from '@/components/store/chatstore.ts';
+import type { Message } from '@/types/Message';
+import SockJS from 'sockjs-client';
+import { Client } from 'webstomp-client';
+import Stomp from 'webstomp-client';
+import { fetchChats, fetchMessages } from '@/utils/ChatUtils';
 
 // State management
-const isOpen = ref(false);
-const currentContact = ref<Contact | null>(null);
-const contacts = ref<Contact[]>([]);
-const users = ref<User[]>([]);
+const userStore = useUserStore();
+const chatStore = useChatStore();
+const isOpen = computed(() => chatStore.isOpen);
+const currentUsername = computed(() => userStore.username);
+
+// UI state
+const currentChat = computed(() => chatStore.currentChat)
+const chats = ref<Chat[]>([]);
+const messages = ref<Message[]>([]);
 const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const messageInput = ref<HTMLInputElement | null>(null);
-const currentUserId = ref(1); // Would come from auth system in real app
 const isLoading = ref(false);
 const isSending = ref(false);
-const error = ref<string | null>(null);
-const unreadCounts = ref<Record<number, number>>({});
 
-// Computed values
-const unreadCount = computed(() => 
-  Object.values(unreadCounts.value).reduce((total, count) => total + count, 0)
-);
+let stompClient: Client | null = null;
 
-// Lifecycle hooks
-onMounted(async () => {
-  await fetchContacts();
-});
 
-// Watch for changes to trigger UI updates
-watch(() => currentContact.value?.messages.length, () => {
-  scrollToBottom();
-});
+// API Methods
+async function fetchUserChats() {
+  chats.value = await fetchChats(currentUsername.value);
+}
 
-watch(() => isOpen.value, (newValue) => {
-  if (newValue && currentContact.value) {
-    nextTick(() => {
-      if (messageInput.value) messageInput.value.focus();
-      scrollToBottom();
-    });
-  }
-});
+async function fetchMessagesFromChat(chat: Chat) {
+  messages.value = await fetchMessages(chat);
+}
 
-// Methods for API interactions
-async function fetchContacts() {
-  isLoading.value = true;
-  error.value = null;
-  
-  try {
-    // In a real app, you'd fetch from your API
-    const { data: chatData } = await axios.get(`/api/chats`, {
-      params: { userId: currentUserId.value }
-    });
-    
-    // Mock data for development
-    if (!chatData || !chatData.length) {
-      // Fallback to mock data
-      contacts.value = mockContacts();
-      users.value = mockUsers();
-    } else {
-      // Transform API response to match our interfaces
-      contacts.value = chatData.map((chat: any) => ({
-        contactId: chat.otherUserId,
-        messages: chat.messages.map((msg: any) => ({
-          isSender: msg.senderId === currentUserId.value,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp),
-          read: msg.read || false
-        }))
-      }));
-      
-      // Fetch user data for contacts
-      const contactIds = contacts.value.map(c => c.contactId);
-      const { data: userData } = await axios.get(`/api/users`, {
-        params: { ids: contactIds.join(',') }
-      });
-      
-      users.value = userData || mockUsers();
-    }
-    
-    // Calculate unread counts
-    calculateUnreadCounts();
-  } catch (err) {
-    console.error('Failed to fetch contacts:', err);
-    error.value = 'Failed to load contacts';
-    
-    // Fallback to mock data in development
-    contacts.value = mockContacts();
-    users.value = mockUsers();
-    calculateUnreadCounts();
-  } finally {
-    isLoading.value = false;
+function handleIncommingMessage(message: Message) {
+  if (currentChat.value?.id === message.chatId) {
+    messages.value.push(message);
+    nextTick(() => scrollToBottom());
+  } else {
+    console.log("New message for othe chat");
   }
 }
 
-async function sendMessage() {
-  if (!currentContact.value || !newMessage.value.trim() || isSending.value) return;
+async function createChat(otherUsername: string): Promise<Chat> {
+  if (!currentUsername.value || !userStore.token) {
+    throw new Error('User not authenticated');
+  }
   
-  const message: Message = {
-    isSender: true,
-    content: newMessage.value.trim(),
-    timestamp: new Date(),
-    read: true
+  const response = await axios.post(
+    'http://localhost:8080/api/chats',
+    {
+      user1Username: currentUsername.value,
+      user2Username: otherUsername
+    },
+    {
+      headers: { 'Authorization': `Bearer ${userStore.token}` }
+    }
+  );
+  
+  const newChat: Chat = response.data;
+  
+  // Format for our application
+  return {
+    id: newChat.id,
+    user1Username: newChat.user1Username,
+    user2Username: newChat.user2Username,
+    timeLastUpdated: newChat.timeLastUpdated
   };
+}
+
+async function sendMessage() {
+  if (!currentChat.value || !newMessage.value.trim() || isSending.value || !userStore.token) return;
   
-  // Optimistic UI update
-  currentContact.value.messages.push(message);
-  const tempMessage = newMessage.value;
+  const messageContent = newMessage.value.trim();
   newMessage.value = '';
   
   scrollToBottom();
   
-  // Send to API
   isSending.value = true;
   try {
-    await axios.post('/api/messages', {
-      senderId: currentUserId.value,
-      receiverId: currentContact.value.contactId,
-      content: tempMessage,
-      timestamp: message.timestamp.toISOString()
-    });
+    const response = await axios.post(
+      'http://localhost:8080/api/messages',
+      {
+        chatId: currentChat.value.id,
+        senderUsername: currentUsername.value,
+        content: messageContent
+      },
+      {
+        headers: { 'Authorization': `Bearer ${userStore.token}` }
+      }
+    );
+    
   } catch (err) {
     console.error('Failed to send message:', err);
-    // Could show an error state on the message or retry option
+    // You could remove the optimistic message here if it fails
   } finally {
     isSending.value = false;
     if (messageInput.value) messageInput.value.focus();
   }
 }
 
-// UI Helper functions
-function toggleChat() {
-  isOpen.value = !isOpen.value;
+function connectWebSocket(chatId: number, onMessageRecieved: (msg: Message) => void, token: string) {
+  if (stompClient?.connected) {
+    stompClient.disconnect(() => {
+      console.log("Previous websocked connection closed.");
+    })
+  }
+
+  const socket = new SockJS('http://localhost:8080/ws');
+  stompClient = Stomp.over(socket);
+
+  stompClient.connect({ Authorization: `Bearer ${token}` }, () => {
+    stompClient?.subscribe(`/topic/chat/${chatId}`, (message) => {
+      if (message.body) {
+        const recievedMessage = JSON.parse(message.body);
+        onMessageRecieved(recievedMessage);
+      }
+    });
+  }, (error) => {
+    console.error("Websocked connection error: ", error);
+  });
 }
 
-function selectContact(contact: Contact) {
-  currentContact.value = contact;
-  
-  // Mark messages as read
-  if (contact.messages.length > 0) {
-    contact.messages.forEach(msg => {
-      if (!msg.isSender) msg.read = true;
+function disconnectWebSocket() {
+  if (stompClient !== null) {
+    stompClient.disconnect(() => {
+      console.log('Disconnected')
     });
-    
-    // Update unread counts
-    calculateUnreadCounts();
+    stompClient = null;
   }
+}
+
+// UI Helper functions
+function toggleChat() {
+  fetchUserChats();
+  if (isOpen.value) {
+    chatStore.closeChat();
+  } else {
+    chatStore.openChat('', null);
+  }
+}
+
+function selectChat(chat: Chat) {
+  chatStore.currentChat = chat;
+  fetchMessagesFromChat(chat);
   
   nextTick(() => {
     scrollToBottom();
@@ -272,8 +248,14 @@ function selectContact(contact: Contact) {
   });
 }
 
-function goBackToContacts() {
-  currentContact.value = null;
+function goBackToChats() {
+  chatStore.currentChat = null;
+  fetchUserChats();
+}
+
+// Returns name of the other user in the chat.
+function getOtherUsername(chat: Chat): string {
+  return chat.user1Username == currentUsername.value ? chat.user2Username : chat.user1Username;
 }
 
 function scrollToBottom() {
@@ -284,88 +266,6 @@ function scrollToBottom() {
   });
 }
 
-function formatTime(date: Date | string): string {
-  if (typeof date === 'string') {
-    date = new Date(date);
-  }
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function getUserName(userId: number): string {
-  const user = users.value.find(u => u.id === userId);
-  return user ? user.name : `User ${userId}`;
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map(part => part.charAt(0))
-    .join('')
-    .toUpperCase()
-    .substring(0, 2);
-}
-
-function getLastMessagePreview(contact: Contact): string {
-  if (contact.messages.length === 0) return 'No messages yet';
-  
-  const lastMessage = contact.messages[contact.messages.length - 1];
-  const prefix = lastMessage.isSender ? 'You: ' : '';
-  const content = lastMessage.content.length > 20
-    ? lastMessage.content.substring(0, 20) + '...'
-    : lastMessage.content;
-    
-  return prefix + content;
-}
-
-function getUnreadCount(contact: Contact): number {
-  return unreadCounts.value[contact.contactId] || 0;
-}
-
-function calculateUnreadCounts() {
-  const counts: Record<number, number> = {};
-  
-  contacts.value.forEach(contact => {
-    const unreadMessages = contact.messages.filter(msg => !msg.isSender && !msg.read);
-    if (unreadMessages.length > 0) {
-      counts[contact.contactId] = unreadMessages.length;
-    }
-  });
-  
-  unreadCounts.value = counts;
-}
-
-// Mock data for development
-function mockContacts(): Contact[] {
-  return [
-    {
-      contactId: 2,
-      messages: [
-        { isSender: false, content: 'Hi, is this item still available?', timestamp: new Date(Date.now() - 3600000) },
-        { isSender: true, content: 'Yes, it is!', timestamp: new Date(Date.now() - 3000000) },
-        { isSender: false, content: 'Great! I\'d like to buy it.', timestamp: new Date(Date.now() - 2400000), read: false },
-      ]
-    },
-    {
-      contactId: 3,
-      messages: [
-        { isSender: false, content: 'Hello, do you ship internationally?', timestamp: new Date(Date.now() - 86400000) },
-        { isSender: true, content: 'Yes, but there\'s an additional fee.', timestamp: new Date(Date.now() - 82800000) },
-      ]
-    },
-    {
-      contactId: 4,
-      messages: []
-    }
-  ];
-}
-
-function mockUsers(): User[] {
-  return [
-    { id: 2, name: 'John Doe', email: 'john@example.com' },
-    { id: 3, name: 'Jane Smith', email: 'jane@example.com' },
-    { id: 4, name: 'New Contact', email: 'new@example.com' }
-  ];
-}
 </script>
 
 <style scoped>
@@ -394,21 +294,6 @@ function mockUsers(): User[] {
 
 .chat-button:hover {
   background-color: #0077e6;
-}
-
-.notification-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: #ff4d4d;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .chat-window {
@@ -540,20 +425,6 @@ function mockUsers(): User[] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.unread-badge {
-  background-color: #ff4d4d;
-  color: white;
-  border-radius: 50%;
-  min-width: 18px;
-  height: 18px;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
-  margin-left: 8px;
 }
 
 /* Chat content */

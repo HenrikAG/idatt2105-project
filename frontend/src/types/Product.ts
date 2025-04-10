@@ -1,10 +1,11 @@
 export interface Product {
-    id: number;
+    id: PropertyKey | undefined;
+    item_id: number;
     item_name: string;
     description: string;
     price: number;
     image_url?: string;
     category: string;
     location?: string;
-    userId: number;
+    seller_name: string;
   }

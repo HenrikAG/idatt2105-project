@@ -1,9 +1,9 @@
 <template>
-    <button class="cat_box" @click="$emit('select-category', category.name)">
-      <span v-if="category.emoji">{{ category.emoji }}</span>
-      <span v-else>{{ category.name }}</span>
-    </button>
-  </template>
+  <button class="cat_box" @click="$emit('select-category', category.name)">
+    <span v-if="category.emoji">{{ category.emoji }}</span>
+    <span v-else>{{ category.name }}</span>
+  </button>
+</template>
   
   <script>
   export default {
@@ -31,6 +31,7 @@
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     width: 100%;
+    color: black;
   }
   
   .cat_box:hover {
@@ -43,4 +44,5 @@
     transform: translateY(1px);
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
+  
   </style>
