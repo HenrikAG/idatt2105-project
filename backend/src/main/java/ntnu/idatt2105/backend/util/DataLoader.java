@@ -36,8 +36,8 @@ public class DataLoader implements ApplicationRunner {
     }
 
     public void run(ApplicationArguments args) {
-        User testUser = new User("Username", passwordEncoder.encode("password123"), Role.USER);
-        User admin = new User("Admin", passwordEncoder.encode("PasswordAdmin123"), Role.ADMIN);
+        User testUser = new User("username", passwordEncoder.encode("password"), Role.USER);
+        User admin = new User("admin", passwordEncoder.encode("admin"), Role.ADMIN);
         userRepository.save(admin);
         userRepository.save(testUser);
 
