@@ -13,16 +13,28 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Auth filter for jwt tokens.
+ */
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     private final JWTService jwtService;
     private final CustomUserDetailsService userDetailsService;
 
+    /**
+     * Constructs a jwtauthfilter.
+     * 
+     * @param jwtService jwt service to validate tokens
+     * @param userDetailsService service class to handle users in security context
+     */
     public JWTAuthorizationFilter(JWTService jwtService, CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }
     
+    /**
+     * Authenticates requests with valid tokens.
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {

@@ -14,6 +14,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 
+/**
+ * Service class for generating and validating jwt tokens
+ */
 @Service
 public class JWTService {
     private static final Logger logger = LoggerFactory.getLogger(JWTService.class);
@@ -23,6 +26,12 @@ public class JWTService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    /**
+     * Generates a jwt token.
+     * 
+     * @param authentication the authentication of the user
+     * @return the genrated token
+     */
     public String generateToken(Authentication authentication) {
         Instant now = Instant.now();
         Instant expiry = now.plusMillis(JWT_TOKEN_VALIDITY.toMillis());
@@ -44,6 +53,12 @@ public class JWTService {
             return token;
     }
 
+    /**
+     * Checks if a token is valid and extracts the username if it is.
+     * 
+     * @param token the token to be validated
+     * @return the username of the user who had the token, null if not valid
+     */
     public String validateTokenAndGetUserName(String token) {
                 try {
             final Algorithm hmac512 = Algorithm.HMAC512(jwtSecret);;
