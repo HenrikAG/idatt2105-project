@@ -32,7 +32,7 @@
         </button>
         <button 
           id="delete-product" 
-          v-if="userStore.role === 'ADMIN'" 
+          v-if="userStore.role === 'ROLE_ADMIN'" 
           @click="(event) => executeDeleteProduct(product.item_id, event)"
         >
           Delete Product
@@ -92,7 +92,7 @@ const executeDeleteProduct = (productId: number, event?: MouseEvent) => {
   event?.stopPropagation();
   
   // Function to delete the product
-  axios.delete(`http://localhost:8080/api/items/${productId}`, {
+  axios.delete(`http://localhost:8080/api/items/item/${productId}`, {
     headers: {
       Authorization: `Bearer ${userStore.token}`
     }

@@ -77,7 +77,7 @@ public class CategoryController {
      * @param categoryName the name of the category to be deleted
      * @return HttpStatus response. NO_CONTENT if success, otherwise BAD_REQUEST.
      */
-    @DeleteMapping("/{name}")
+    @DeleteMapping("/{categoryName}")
     @Operation(summary = "Deletes a category by name")
     public ResponseEntity<?> deleteCategory(@PathVariable String categoryName) {
         logger.info("Trying to delete category with name: " + categoryName);

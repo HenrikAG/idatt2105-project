@@ -6,7 +6,7 @@ import { useUserStore } from '@/components/store/userstore';
 
 const userstore = useUserStore();
 const isLoggedIn = computed(() => !!userstore.username);
-const isAdmin = computed(() => userstore.username && userstore.role === 'ADMIN');
+const isAdmin = computed(() => userstore.username && userstore.role === 'ROLE_ADMIN');
 </script>
 
 <template>

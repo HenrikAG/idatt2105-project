@@ -21,7 +21,7 @@
         </div>
         
         <div class="user-actions">
-          <button v-if="userStore.role === 'ADMIN'" 
+          <button v-if="userStore.role === 'ROLE_ADMIN'" 
                   class="delete-button" 
                   @click.stop="deleteUser">Delete User</button>
         </div>

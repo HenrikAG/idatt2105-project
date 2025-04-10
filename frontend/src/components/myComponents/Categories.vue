@@ -52,7 +52,7 @@ export default {
     const foundCategories = ref<boolean>(false);
     const loading = ref<boolean>(true); // Add loading state
     const userstore = useUserStore();
-    const isAdmin = computed(() => userstore.role === 'ADMIN');
+    const isAdmin = computed(() => userstore.role === 'ROLE_ADMIN');
     const newCategoryName = ref<string>('');
     const deleteCategoryName = ref<string>('');
     const deleteMessage = ref<string>('');
