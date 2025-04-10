@@ -10,6 +10,7 @@
             <button @click="updateQuery">Search</button>
         </div>
         <ProductList 
+            ref="productListRef"
             :fetchType="category"
             :fetchQuery="getCategoryName()"
             :fetchQuerySearch="getSearchQuery()" />
@@ -19,10 +20,6 @@
 <script lang="ts">
 import { useUserStore } from "@/components/store/userstore";
 import ProductList from "@/components/vue/ProductList.vue";
-import { useRouter, useRoute } from "vue-router";
-
-const router = useRouter();
-const route = useRoute();
 
 export default {
     name: "ProductsView",
@@ -51,12 +48,16 @@ export default {
             return pathParts[pathParts.length - 1];
         },
         updateQuery() : void {
-            if (this.searchQuery) {
-                this.ProductList.fetchQuerySearch = this.searchQuery;
-            } else {
-                this.ProductList.fetchQuerySearch = null;
+        if (this.searchQuery) {
+            // Use the ref to access the component instance
+            const productList = this.$refs.productListRef as any;
+            productList.searchQuery = this.searchQuery;
+            if (productList) {
+                productList.fetchGet()
+                alert(`Searching for: ${productList.searchQuery}`);
             }
-        },
+        }
+    },
     }
 };
 </script>

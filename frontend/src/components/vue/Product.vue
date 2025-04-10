@@ -1,9 +1,9 @@
 <template>
     <div class="product">
         <div>
-            <button @click="toggleExpand">{{ isExpanded ? 'Collapse' : 'Expand' }}</button>
             <img v-if="DTOitem.image_url" :src="DTOitem.image_url"/>
-            <h2>{{ DTOitem.item_name }}</h2>
+            <button @click="toggleExpand">{{ isExpanded ? 'Collapse' : 'Expand' }}</button>
+            <h2>{{ DTOitem.item_name }} | ${{ DTOitem.price }}</h2>
             <div v-if="isExpanded">
                 <p>{{ DTOitem.description }}</p>
                 <p>Price: ${{ DTOitem.price }}</p>
@@ -88,7 +88,4 @@ export default {
 </script>
 
 <style scoped>
-.product {
-    /* Add styles here */
-}
 </style>

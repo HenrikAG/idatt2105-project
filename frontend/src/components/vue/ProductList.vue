@@ -1,11 +1,9 @@
 <template>
     <div class="product-list">
         <div v-if="fetchType">
-            <ul>
-            <li v-for="(DTOitem, index) in itemList.slice(0, 5)" :key="DTOitem.id">
+            <div v-for="(DTOitem, index) in itemList.slice(0, limit)" :key="DTOitem.id">
                 <Product :DTOitem="DTOitem" />
-            </li>
-            </ul>
+            </div>
         </div>
     </div>
 </template>
@@ -50,11 +48,12 @@ export default {
         return {
             itemList: [] as DTOitem[],
             userstore: useUserStore(),
-            category: '' as string
+            category: '' as string,
+            limit: 100 as number,
         };
     },
     mounted() {
-        this.fetchGet(this.fetchType).then(items => {
+        this.fetchGet().then(items => {
             this.itemList = items;
         });
     },
@@ -116,8 +115,8 @@ export default {
 
 
         // Fetch products based on the fetchType and fetchQuery props
-        fetchGet(fetchType: string) {
-            switch (fetchType) {
+        fetchGet() {
+            switch (this.fetchType) {
                 case "all":
                     return this.fetchAll();
                 case "category":
@@ -125,7 +124,7 @@ export default {
                 case "user":
                     return this.fetchUser();
                 default:
-                    console.error("Invalid fetchType:", fetchType);
+                    console.error("Invalid fetchType:", this.fetchType);
                     return Promise.resolve([]);
             }
         },
@@ -134,7 +133,4 @@ export default {
 </script>
 
 <style scoped>
-.product-list {
-    /* Add styles for your component here */
-}
 </style>

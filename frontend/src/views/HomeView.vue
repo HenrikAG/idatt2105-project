@@ -1,7 +1,17 @@
 <template>
     <div class="home-view">
         <h1>Welcome to HomeView</h1>
-        <ProductList fetchType="all"/>
+        <div v-if="userStore.token && userStore.token !== '' && categoryFavorites.length > 0" class="show-favorites">
+            <ProductList 
+            v-for="category in categoryFavorites" 
+            :key="category" 
+            :fetchType="'category'" 
+            :category="category" 
+            />
+        </div>
+        <div v-else class="show-all">
+            <ProductList :fetchType="'all'" />
+        </div>
     </div>
 </template>
 
@@ -17,15 +27,12 @@ export default defineComponent({
     },
     data() {
         return {
-            
+            userStore: useUserStore() as any,
+            categoryFavorites: [] as string[],
         };
     },
 });
 </script>
 
 <style scoped>
-.home-view {
-    text-align: center;
-    margin-top: 20px;
-}
 </style>

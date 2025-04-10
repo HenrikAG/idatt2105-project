@@ -1,12 +1,10 @@
 <template>
     <div class="categories-select">
         <div class="categories-list">
-            <h2>Categories</h2>
-            <ul>
-                <li v-for="category in DTOcategory" :key="category.id">
-                    <CategoryGoto :DTOcategory="category" />
-                </li>
-            </ul>
+            <div v-for="category in DTOcategory" :key="category.id">
+                <CategoryGoto :DTOcategory="category" />
+                <button v-if="userstore.role === 'ADMIN'" class="delete-category" @click="deleteCategory(category.name)">Delete</button>
+            </div>
         </div>
     </div>
 </template>
@@ -48,7 +46,23 @@ export default {
                 console.error("Error fetching categories:", error);
                 return [] as DTOcategory[];
             });
-        }
+        },
+        deleteCategory(categoryname: string) {
+            if (confirm("Are you sure you want to delete this category?")) {
+                axios.delete(`http://localhost:8080/api/categories/${categoryname}`, {
+                    headers: {
+                        Authorization: `Bearer ${this.userstore.token}`,
+                    },
+                })
+                .then(() => {
+                    alert("Category deleted successfully.");
+                })
+                .catch(error => {
+                    console.error("Error deleting category:", error);
+                    alert("Failed to delete category.");
+                });
+            }
+        },
     },
 };
 </script>

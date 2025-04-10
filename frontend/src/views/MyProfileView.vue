@@ -16,11 +16,29 @@ export default {
             // Define any data properties here if needed
         };
     },
+    methods: {
+        executeDeleteAccount() {
+            // Logic to handle account deletion
+            if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                axios.delete(`http://localhost:8080/api/user/${this.userstore.username}`, {
+                    headers: {
+                        Authorization: `Bearer ${this.userstore.token}`,
+                    },
+                })
+                .then(() => {
+                    alert("Account deleted successfully.");
+                    this.userstore.clearUser(); // Clear user data from store
+                    this.executeLogout(); // Logout after account deletion
+                })
+                .catch(error => {
+                    console.error("Error deleting account:", error);
+                    alert("Failed to delete account.");
+                });
+            }
+        },
+    },
 };
 </script>
 
 <style scoped>
-.my-profile-view {
-    /* Styles go here */
-}
 </style>

@@ -25,8 +25,4 @@ export default {
 </script>
 
 <style scoped>
-.login-view {
-    text-align: center;
-    margin-top: 50px;
-}
 </style>
