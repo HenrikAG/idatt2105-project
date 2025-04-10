@@ -39,7 +39,7 @@
     },
     computed: {
       isLoggedIn() {
-        return this.userStore.token != null;
+        return this.userStore.token != '';
       }
     },
     created() {
