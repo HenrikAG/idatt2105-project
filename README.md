@@ -102,4 +102,4 @@ Unit tests (vitest)
 - Ole Kristian Wigum (Mainly frontend development)
 
 # System architecture model
-![Image](
+![Sketch](ArchitectureSketch.png)
