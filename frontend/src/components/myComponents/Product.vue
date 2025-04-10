@@ -76,11 +76,7 @@ const executeContactSeller = (username: string, event?: Event) => {
   event?.stopPropagation();
   
   // Open chat with seller and force send a new product message
-  chatStore.openChatWithProduct(username, {
-    id: props.product.item_id,
-    name: props.product.item_name,
-    price: props.product.price
-  });
+  chatStore.openChat(username);
 }
 
 const executeDeleteProduct = (productId: number, event?: MouseEvent) => {

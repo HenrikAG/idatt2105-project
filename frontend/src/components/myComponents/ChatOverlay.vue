@@ -8,7 +8,7 @@
     <!-- Chat window (conditionally rendered) -->
     <div v-if="isOpen" class="chat-window">
       <div class="chat-header">
-        <h3>{{ currentChat ? getUserName(currentChat.otherUsername) : 'Contacts' }}</h3>
+        <h3>{{ currentChat ? getOtherUsername(currentChat) : 'Contacts' }}</h3>
         <button class="close-button" @click="toggleChat" aria-label="Close chat">×</button>
       </div>
       
@@ -31,11 +31,11 @@
             @click="selectChat(chat)"
           >
             <div class="contact-avatar">
-              {{ getInitials(getUserName(chat.otherUsername)) }}
+              {{ getOtherUsername(chat) }}
             </div>
             <div class="contact-info">
-              <div class="contact-name">{{ getUserName(chat.otherUsername) }}</div>
-              <div class="contact-preview">{{ getLastMessagePreview(chat) }}</div>
+              <div class="contact-name">{{ getOtherUsername(chat) }}</div>
+              <!--<div class="contact-preview">{{ getLastMessagePreview(chat) }}</div>-->
             </div>
           </div>
         </div>
@@ -44,18 +44,18 @@
       <!-- Chat conversation view (shown when a chat is selected) -->
       <div v-else class="chat-content">
         <div class="chat-messages" ref="messagesContainer">
-          <div v-if="currentChat.messages.length === 0" class="empty-chat-state">
+          <div v-if="messages.length === 0" class="empty-chat-state">
             <p>No messages yet. Start the conversation!</p>
           </div>
           
           <template v-else>
             <div 
-              v-for="(message, index) in currentChat.messages" 
+              v-for="(message, index) in messages" 
               :key="message.id || index"
-              :class="['message', message.isSender ? 'user-message' : 'contact-message']"
+              :class="['message', message.senderUsername == currentUsername ? 'user-message' : 'contact-message']"
             >
               <div class="message-content">{{ message.content }}</div>
-              <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+              <div class="message-time">{{ message.timestamp }}</div>
             </div>
           </template>
         </div>
@@ -94,30 +94,21 @@
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import axios from 'axios';
 import type { Chat } from '@/types/Chat';
-import type { Message } from '@/types/Message';
 import { useUserStore } from '@/components/store/userstore.ts';
 import { useChatStore } from '@/components/store/chatstore.ts';
-
-// Types
-interface User {
-  id: number;
-  name: string;
-  email?: string;
-  image_url?: string | null;
-}
+import type { Message } from '@/types/Message';
 
 // State management
 const userStore = useUserStore();
 const chatStore = useChatStore();
 const isOpen = computed(() => chatStore.isOpen);
 const storeActiveContact = computed(() => chatStore.activeContact);
-const productContext = computed(() => chatStore.productContext);
 const currentUsername = computed(() => userStore.username);
 
 // UI state
 const currentChat = ref<Chat | null>(null);
 const chats = ref<Chat[]>([]);
-const users = ref<User[]>([]);
+const messages = ref<Message[]>([]);
 const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const messageInput = ref<HTMLInputElement | null>(null);
@@ -125,61 +116,11 @@ const isLoading = ref(false);
 const isSending = ref(false);
 const error = ref<string | null>(null);
 
-// Lifecycle hooks
 onMounted(async () => {
   if (currentUsername.value) {
     await fetchChats();
   }
 });
-
-// Watch for changes
-watch(() => currentChat.value?.messages.length, () => {
-  scrollToBottom();
-});
-
-watch(() => isOpen.value, (newValue) => {
-  if (newValue && currentChat.value) {
-    nextTick(() => {
-      if (messageInput.value) messageInput.value.focus();
-      scrollToBottom();
-    });
-  }
-});
-
-// Watch for active contact changes from chat store
-watch(storeActiveContact, async (newContact) => {
-  if (newContact && currentUsername.value) {
-    // Find an existing chat with this contact
-    let foundChat = chats.value.find(chat => 
-      chat.user1Username === newContact || chat.user2Username === newContact
-    );
-    
-    if (!foundChat) {
-      try {
-        // Create a new chat through API
-        foundChat = await createChat(newContact);
-        chats.value.push(foundChat);
-      } catch (error) {
-        console.error('Failed to create chat:', error);
-        return;
-      }
-    }
-    
-    // Select this chat
-    selectChat(foundChat);
-    
-    // If there's product context AND forceSendMessage is true, send a message
-    // regardless of whether the chat is new or existing
-    if (productContext.value && chatStore.forceSendMessage) {
-      const initialMessage = `Hi, I'm interested in your "${productContext.value.name}" priced at $${productContext.price}. Is it still available?`;
-      newMessage.value = initialMessage;
-      nextTick(() => {
-        sendMessage();
-        chatStore.clearProductContext();
-      });
-    }
-  }
-}, { immediate: true });
 
 // API Methods
 async function fetchChats() {
@@ -198,32 +139,38 @@ async function fetchChats() {
     
     // Map API response to our chat format
     chats.value = response.data.map((chatData: any) => {
-      const otherUsername = chatData.user1Username === currentUsername.value 
-        ? chatData.user2Username 
-        : chatData.user1Username;
-      
+  
       return {
         id: chatData.id,
         user1Username: chatData.user1Username,
         user2Username: chatData.user2Username,
-        otherUsername, // Convenience property
-        messages: chatData.messages.map((msg: any) => ({
-          id: msg.id,
-          isSender: msg.senderUsername === currentUsername.value,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp)
-        }))
+        timeLastUpdated: chatData.timeLastUpdated
       };
     });
-    
-    // Fetch user data for contacts
-    await fetchUsers();
     
   } catch (err) {
     console.error('Failed to fetch chats:', err);
     error.value = 'Failed to load chats';
   } finally {
     isLoading.value = false;
+  }
+}
+
+async function fetchMessagesFromChat(chat: Chat) {
+  isLoading.value = true;
+  try {
+    const response = await axios.get(
+      `http://localhost:8080/api/messages/chat/${chat.id}`,
+      {
+        headers: { 'Authorization': `Bearer ${userStore.token}` }
+      }
+    );
+    
+    messages.value = response.data;
+    console.log(messages.value);
+  } catch (err) {
+    isLoading.value = false;
+    console.error("Failer do load messages");
   }
 }
 
@@ -243,18 +190,14 @@ async function createChat(otherUsername: string): Promise<Chat> {
     }
   );
   
-  const newChat = response.data;
+  const newChat: Chat = response.data;
   
   // Format for our application
   return {
     id: newChat.id,
     user1Username: newChat.user1Username,
     user2Username: newChat.user2Username,
-    otherUsername: newChat.user1Username === currentUsername.value 
-      ? newChat.user2Username 
-      : newChat.user1Username,
-    messages: [],
-    timeLastUpdated: new Date(newChat.timeLastUpdated)
+    timeLastUpdated: newChat.timeLastUpdated
   };
 }
 
@@ -310,46 +253,6 @@ async function sendMessage() {
   }
 }
 
-async function fetchUsers() {
-  if (!userStore.token) return;
-  
-  try {
-    // Get unique usernames from chats
-    const usernames = new Set<string>();
-    
-    chats.value.forEach(chat => {
-      if (chat.user1Username !== currentUsername.value) {
-        usernames.add(chat.user1Username);
-      }
-      if (chat.user2Username !== currentUsername.value) {
-        usernames.add(chat.user2Username);
-      }
-    });
-    
-    // Fetch each user's data
-    for (const username of usernames) {
-      // Skip if we already have this user's data
-      if (users.value.some(u => u.name === username)) continue;
-      
-      const response = await axios.get(
-        `http://localhost:8080/api/user/${username}`,
-        {
-          headers: { 'Authorization': `Bearer ${userStore.token}` }
-        }
-      );
-      
-      users.value.push({
-        id: response.data.id || 0,
-        name: response.data.username,
-        email: response.data.email,
-        image_url: response.data.imageUrl
-      });
-    }
-  } catch (err) {
-    console.error('Failed to fetch users:', err);
-  }
-}
-
 // UI Helper functions
 function toggleChat() {
   if (isOpen.value) {
@@ -361,6 +264,7 @@ function toggleChat() {
 
 function selectChat(chat: Chat) {
   currentChat.value = chat;
+  fetchMessagesFromChat(chat);
   
   nextTick(() => {
     scrollToBottom();
@@ -370,6 +274,10 @@ function selectChat(chat: Chat) {
 
 function goBackToChats() {
   currentChat.value = null;
+}
+// Returns name of the other user in the chat.
+function getOtherUsername(chat: Chat): string {
+  return chat.user1Username == currentUsername.value ? chat.user2Username : chat.user1Username;
 }
 
 function scrollToBottom() {
@@ -387,11 +295,6 @@ function formatTime(date: Date | string): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function getUserName(username: string): string {
-  const user = users.value.find(u => u.name === username);
-  return user ? user.name : username;
-}
-
 function getInitials(name: string): string {
   return name
     .split(' ')
@@ -399,18 +302,6 @@ function getInitials(name: string): string {
     .join('')
     .toUpperCase()
     .substring(0, 2);
-}
-
-function getLastMessagePreview(chat: Chat): string {
-  if (!chat.messages || chat.messages.length === 0) return 'No messages yet';
-  
-  const lastMessage = chat.messages[chat.messages.length - 1];
-  const prefix = lastMessage.isSender ? 'You: ' : '';
-  const content = lastMessage.content.length > 20
-    ? lastMessage.content.substring(0, 20) + '...'
-    : lastMessage.content;
-    
-  return prefix + content;
 }
 </script>
 

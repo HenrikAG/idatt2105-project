@@ -3,5 +3,5 @@ export interface Message {
     chatId : number; // id for the current chat
     senderUsername: string; // Username of the sender
     content: string; // Content of the message
-    timestamp : Date; // Timestamp of when the message was sent
+    timestamp: String; // When the message was sent
 }

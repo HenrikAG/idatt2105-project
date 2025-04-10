@@ -7,12 +7,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import ntnu.idatt2105.backend.dto.CategoryRegisterDTO;
+import ntnu.idatt2105.backend.dto.ChatRequest;
 import ntnu.idatt2105.backend.dto.ItemRegisterDTO;
 import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.model.User;
 import ntnu.idatt2105.backend.repository.UserRepository;
 import ntnu.idatt2105.backend.service.CategoryService;
+import ntnu.idatt2105.backend.service.ChatService;
 import ntnu.idatt2105.backend.service.ItemService;
+import ntnu.idatt2105.backend.service.MessageService;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -20,15 +23,19 @@ public class DataLoader implements ApplicationRunner {
     private CategoryService categoryService;
     private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private ChatService chatService;
+    private MessageService messageService;
 
     @Autowired
     public DataLoader(ItemService itemService, CategoryService categoryService, UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder, MessageService messageService, ChatService chatService) {
 
         this.itemService = itemService;
         this.categoryService = categoryService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.messageService = messageService;
+        this.chatService = chatService;
     }
 
     public void run(ApplicationArguments args) {
@@ -36,6 +43,9 @@ public class DataLoader implements ApplicationRunner {
         User admin = new User("Admin", passwordEncoder.encode("PasswordAdmin123"), Role.ADMIN);
         userRepository.save(admin);
         userRepository.save(testUser);
+
+        ChatRequest chatRequest = new ChatRequest(testUser.getUsername(), admin.getUsername());
+        chatService.createChat(chatRequest);
 
         CategoryRegisterDTO electronics = new CategoryRegisterDTO("Electronics");
         CategoryRegisterDTO books = new CategoryRegisterDTO("Books");

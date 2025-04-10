@@ -50,10 +50,11 @@ public class MessageController {
         logger.info("Atempting to send message with chatId = " + request.getChatId() + " and senderUsername = " + request.getSenderUsername());
 
         try {
+            logger.info("Message sent successfully");
             MessageDTO message = messageService.sendMessage(request);
             return new ResponseEntity<>(message, HttpStatus.CREATED);
         } catch (NotFoundException exception) {
-            logger.info("Failed to send message: " + exception.getMessage());
+            logger.warn("Failed to send message: " + exception.getMessage());
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

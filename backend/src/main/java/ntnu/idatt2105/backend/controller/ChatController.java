@@ -69,7 +69,9 @@ public class ChatController {
      */
     @GetMapping("user/{username}")
     public ResponseEntity<?> getUserChats(@PathVariable String username) {
+        logger.info("Atempting to get all of the chats for user withusername: " + username);
         try {
+            logger.info("Successfully retrieved all of user: " + username + "'s chats");
             List<ChatDTO> userChats = chatService.getUserChats(username);
             return new ResponseEntity<>(userChats, HttpStatus.OK);
         } catch (NotFoundException exception) {
