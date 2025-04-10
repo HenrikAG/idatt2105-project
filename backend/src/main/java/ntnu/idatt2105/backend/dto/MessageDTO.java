@@ -28,11 +28,47 @@ public class MessageDTO {
     }
 
     /**
+     * Returns the id of the message.
+     * 
+     * @return the id of the message
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
      * Returns the id of the chat the message is being sent in.
      * 
      * @return the id of the chat the message is being sent in
      */
     public Long getChatId() {
         return chatId;
+    }
+
+    /**
+     * Returns the username of the sender.
+     * 
+     * @return the username of the sender
+     */
+    public String getSenderUsername() {
+        return senderUsername;
+    }
+
+    /**
+     * Returns the content of the message
+     * 
+     * @return the content of the message
+     */
+    public String getContent() {
+        return content;
+    }
+
+    /**
+     * Returns the time of the message being sent
+     * 
+     * @return time of the message being sent
+     */
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 }

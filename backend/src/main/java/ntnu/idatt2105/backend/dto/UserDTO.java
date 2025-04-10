@@ -1,6 +1,5 @@
 package ntnu.idatt2105.backend.dto;
 
-import ntnu.idatt2105.backend.enums.Role;
 import ntnu.idatt2105.backend.model.User;
 
 /**
