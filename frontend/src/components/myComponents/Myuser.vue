@@ -150,7 +150,7 @@
       // Fetch user's products
       const fetchUserProducts = async () => {
         try {
-          const response = await axios.get(`http://localhost:8080/api/items/user/${userStore.username}`, {
+          const response = await axios.get(`http://localhost:8080/api/user/${userStore.username}/listed-items`, {
             headers: { Authorization: `Bearer ${userStore.token}` }
           });
           products.value = response.data;

@@ -120,11 +120,6 @@ const isSending = ref(false);
 
 let stompClient: Client | null = null;
 
-onMounted(async () => {
-  if (currentUsername.value) {
-    await fetchUserChats();
-  }
-});
 
 // API Methods
 async function fetchUserChats() {
@@ -235,6 +230,7 @@ function disconnectWebSocket() {
 
 // UI Helper functions
 function toggleChat() {
+  fetchUserChats();
   if (isOpen.value) {
     chatStore.closeChat();
   } else {
