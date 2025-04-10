@@ -64,7 +64,7 @@ Unit tests (vitest)
 - H2 Database
 
 ## Documentation
-- [Swagger (when running backend)(http://localhost:8080/swagger-ui/index.html)
+- [Swagger (when running backend)](http://localhost:8080/swagger-ui/index.html)
 - JavaDoc
 
 ## Functionality
