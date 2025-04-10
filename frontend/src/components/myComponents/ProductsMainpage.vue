@@ -39,7 +39,7 @@
     },
     computed: {
       isLoggedIn() {
-        return !!this.userStore.token;
+        return this.userStore.token != null;
       }
     },
     created() {
@@ -53,6 +53,7 @@
           let response;
           
           if (this.isLoggedIn) {
+            console.log("Getting favorite item")
             // If logged in, get items from user's favorite categories
             response = await axios.get(`http://localhost:8080/api/user/${this.userStore.username}/favorite-items`, {
               headers: {
@@ -60,6 +61,7 @@
               }
             });
           } else {
+            console.log("Getting categoryitems")
             // If not logged in, get items from all categories
             // First, get all categories
             const categoriesResponse = await axios.get('http://localhost:8080/api/categories');
