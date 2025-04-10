@@ -97,12 +97,14 @@ import type { Chat } from '@/types/Chat';
 import { useUserStore } from '@/components/store/userstore.ts';
 import { useChatStore } from '@/components/store/chatstore.ts';
 import type { Message } from '@/types/Message';
+import SockJS from 'sockjs-client';
+import { Client } from 'webstomp-client';
+import Stomp from 'webstomp-client';
 
 // State management
 const userStore = useUserStore();
 const chatStore = useChatStore();
 const isOpen = computed(() => chatStore.isOpen);
-const storeActiveContact = computed(() => chatStore.activeContact);
 const currentUsername = computed(() => userStore.username);
 
 // UI state
@@ -115,6 +117,8 @@ const messageInput = ref<HTMLInputElement | null>(null);
 const isLoading = ref(false);
 const isSending = ref(false);
 const error = ref<string | null>(null);
+
+let stompClient: Client | null = null;
 
 onMounted(async () => {
   if (currentUsername.value) {
@@ -157,6 +161,7 @@ async function fetchChats() {
 }
 
 async function fetchMessagesFromChat(chat: Chat) {
+  console.log("Fetch messages.")
   isLoading.value = true;
   try {
     const response = await axios.get(
@@ -168,9 +173,21 @@ async function fetchMessagesFromChat(chat: Chat) {
     
     messages.value = response.data;
     console.log(messages.value);
+
+    connectWebSocket(chat.id, handleIncommingMessage, userStore.token);
+
   } catch (err) {
     isLoading.value = false;
     console.error("Failer do load messages");
+  }
+}
+
+function handleIncommingMessage(message: Message) {
+  if (currentChat.value?.id === message.chatId) {
+    messages.value.push(message);
+    nextTick(() => scrollToBottom());
+  } else {
+    console.log("New message for othe chat");
   }
 }
 
@@ -207,20 +224,6 @@ async function sendMessage() {
   const messageContent = newMessage.value.trim();
   newMessage.value = '';
   
-  // Optimistically add message to UI
-  const message = {
-    id: Date.now(), // Temporary ID
-    isSender: true,
-    content: messageContent,
-    timestamp: new Date()
-  };
-  
-  if (currentChat.value.messages) {
-    currentChat.value.messages.push(message);
-  } else {
-    currentChat.value.messages = [message];
-  }
-  
   scrollToBottom();
   
   isSending.value = true;
@@ -237,19 +240,43 @@ async function sendMessage() {
       }
     );
     
-    // Update the temporary message with the actual ID from server
-    const realMessage = response.data;
-    const lastIndex = currentChat.value.messages.length - 1;
-    if (lastIndex >= 0) {
-      currentChat.value.messages[lastIndex].id = realMessage.id;
-    }
-    
   } catch (err) {
     console.error('Failed to send message:', err);
     // You could remove the optimistic message here if it fails
   } finally {
     isSending.value = false;
     if (messageInput.value) messageInput.value.focus();
+  }
+}
+
+function connectWebSocket(chatId: number, onMessageRecieved: (msg: Message) => void, token: string) {
+  if (stompClient?.connected) {
+    stompClient.disconnect(() => {
+      console.log("Previous websocked connection closed.");
+    })
+  }
+
+  const socket = new SockJS('http://localhost:8080/ws');
+  stompClient = Stomp.over(socket);
+
+  stompClient.connect({ Authorization: `Bearer ${token}` }, () => {
+    stompClient?.subscribe(`/topic/chat/${chatId}`, (message) => {
+      if (message.body) {
+        const recievedMessage = JSON.parse(message.body);
+        onMessageRecieved(recievedMessage);
+      }
+    });
+  }, (error) => {
+    console.error("Websocked connection error: ", error);
+  });
+}
+
+function disconnectWebSocket() {
+  if (stompClient !== null) {
+    stompClient.disconnect(() => {
+      console.log('Disconnected')
+    });
+    stompClient = null;
   }
 }
 
@@ -274,7 +301,9 @@ function selectChat(chat: Chat) {
 
 function goBackToChats() {
   currentChat.value = null;
+  fetchChats();
 }
+
 // Returns name of the other user in the chat.
 function getOtherUsername(chat: Chat): string {
   return chat.user1Username == currentUsername.value ? chat.user2Username : chat.user1Username;
@@ -288,21 +317,6 @@ function scrollToBottom() {
   });
 }
 
-function formatTime(date: Date | string): string {
-  if (typeof date === 'string') {
-    date = new Date(date);
-  }
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map(part => part.charAt(0))
-    .join('')
-    .toUpperCase()
-    .substring(0, 2);
-}
 </script>
 
 <style scoped>

@@ -14,6 +14,6 @@ public class MessageWebSocketSender {
     }
 
     public void sendMessageToChat(MessageDTO messageDTO) {
-        messagingTemplate.convertAndSend("/topic/chat" + messageDTO.getChatId(), messageDTO);
+        messagingTemplate.convertAndSend("/topic/chat/" + messageDTO.getChatId(), messageDTO);
     }
 }
