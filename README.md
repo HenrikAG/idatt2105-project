@@ -98,6 +98,6 @@ Unit tests (vitest)
 - Add functionalyty to press buy items
 - Add locations to items being sold
 
-# Contributos
+# Contributors
 - Henrik André Gaustad (Mainly backend development)
 - Ole Kristian Wigum (Mainly frontend development)
