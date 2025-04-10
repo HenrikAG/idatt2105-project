@@ -100,3 +100,6 @@ Unit tests (vitest)
 # Contributors
 - Henrik André Gaustad (Mainly backend development)
 - Ole Kristian Wigum (Mainly frontend development)
+
+# System architecture model
+![Image](
