@@ -36,10 +36,9 @@ export default {
             try {
 
                 // Send login request to the server
-                const response = await axios.post("http://localhost:8080/api/user/login", {
-                    username: this.DTOloginSubmit.username,
-                    password: this.DTOloginSubmit.password
-                });
+                const response = await axios.post("http://localhost:8080/api/user/login", 
+                    this.DTOloginSubmit
+                );
                 
                 // Get the token data from response
                 this.DTOloginToken = response.data;
